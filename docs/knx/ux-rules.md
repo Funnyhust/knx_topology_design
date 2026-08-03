@@ -71,9 +71,10 @@
 - While Wiring Mode is armed, its toolbar action uses the selected blue state
   and `aria-pressed=true`; leaving the mode restores the default action state.
 - Preview and committed wires use the same green KNX style, fixed terminal
-  points and explicit waypoints. Right-click or Escape completes the active
-  wire at the current live cursor and keeps the tool armed; repeating it with
-  no active wire exits. The Canvas context menu stays suppressed while armed.
+  points and explicit waypoints. Clicking the latest waypoint again without
+  moving completes the active wire at that waypoint. Right-click completes at
+  the live cursor and keeps the tool armed. `W`, the Wiring Mode toolbar action
+  and Escape complete any active wire and exit the mode.
 - Backspace/Delete removes the last anchor and Space changes the next elbow.
   Entering, completing or cancelling Wiring Mode never mutates equipment.
 - `W` is captured before draw.io shortcuts. During mode entry, removal requests
@@ -90,3 +91,6 @@
 - Normal commands do not automatically Fit, Center or change zoom.
 - Active placement and wiring operations provide status text and a clear cursor.
 - Empty, hover, selected, focus and error states remain visible and accessible.
+- On desktop, the Project and Properties borders are draggable separators with
+  bounded widths. Resizing preserves Canvas scroll/zoom, persists locally and
+  supports arrow/Home/End keys; mobile overlay panel widths remain unchanged.

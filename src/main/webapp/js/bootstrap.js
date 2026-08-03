@@ -316,7 +316,7 @@ else
         
         function loadAppJS()
         {
-			mxscript('js/app.min.js?v=20260804-38', function()
+			mxscript('js/app.min.js?v=20260804-39', function()
 			{
 				mxscript('js/diagramly/WireModeActivation.js?v=20260803-3', function()
                 {

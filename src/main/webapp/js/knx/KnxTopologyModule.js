@@ -2092,8 +2092,10 @@
 	KnxTopologyModule.prototype.startConnectBus = function()
 	{
 		this.cancelDevicePlacement();
-		return typeof this.editorUi.enterWireMode == 'function' ?
-			this.editorUi.enterWireMode() : false;
+		return typeof this.editorUi.toggleWireMode == 'function' ?
+			this.editorUi.toggleWireMode() :
+			(typeof this.editorUi.enterWireMode == 'function' ?
+				this.editorUi.enterWireMode() : false);
 	};
 
 	KnxTopologyModule.prototype.selectTopologyCell = function(cell)

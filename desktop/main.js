@@ -210,6 +210,60 @@ async function createWindow(port)
 
 		if (ready)
 		{
+			const panelResult = await mainWindow.webContents.executeJavaScript(
+				"(function(){try{var root=document.querySelector('.knxWorkspace');" +
+				"var w=root.knxWorkspace;var left=w.leftPanelWidth,right=w.rightPanelWidth;" +
+				"var diagram=document.querySelector('.geDiagramContainer');" +
+				"var sl=diagram.scrollLeft,st=diagram.scrollTop;" +
+				"w.setPanelWidth('left',9999,false);" +
+				"w.setPanelWidth('right',9999,false);var d=document.querySelector(" +
+				"'.geDiagramContainer').getBoundingClientRect();var handles=" +
+				"Array.from(document.querySelectorAll('.knxPanelResizeHandle'))" +
+				".every(function(x){return getComputedStyle(x).display==='block'});" +
+				"var ok=w.leftPanelWidth>=220&&w.leftPanelWidth<=480&&" +
+				"w.rightPanelWidth>=260&&w.rightPanelWidth<=520&&d.width>=420&&handles&&" +
+				"diagram.scrollLeft===sl&&diagram.scrollTop===st;" +
+				"w.setPanelWidth('left',left,false);" +
+				"w.setPanelWidth('right',right,false);return {ok:ok}}catch(e){return " +
+				"{ok:false,error:String(e.stack||e)}}})()");
+			ready = panelResult.ok;
+			console.log('KNX_PANEL_RESIZE_SMOKE', ready ? 'OK' : 'FAILED');
+
+			if (!ready)
+			{
+				console.error('KNX_PANEL_RESIZE_DETAILS', panelResult.error);
+			}
+		}
+
+		if (ready)
+		{
+			ready = await mainWindow.webContents.executeJavaScript(
+				"(function(){var root=document.querySelector('.knxWorkspace');" +
+				"var w=root.knxWorkspace,u=w.editorUi,g=u.editor.graph,m=g.getModel();" +
+				"function count(){var n=0;for(var id in m.cells){var c=m.cells[id];" +
+				"if(c&&m.isEdge(c)&&String(c.style).indexOf('wireMode=1')>=0)n++}return n}" +
+				"var canvas=document.querySelector('.geDiagramContainer');" +
+				"function fire(type,x,y){canvas.dispatchEvent(new MouseEvent(type," +
+				"{bubbles:true,cancelable:true,clientX:x,clientY:y,button:0}))}" +
+				"var r=canvas.getBoundingClientRect(),x=r.left+r.width/2," +
+				"y=r.top+r.height/2,before=count();w.wiringModeButton.click();" +
+				"fire('mousedown',x,y);fire('mousedown',x+100,y);" +
+				"fire('mousedown',x+100,y);var repeated=count()===before+1&&" +
+				"u.wireModeActive;w.wiringModeButton.click();var toolbarExit=!u.wireModeActive;" +
+				"window.dispatchEvent(new KeyboardEvent('keydown',{key:'w',keyCode:87," +
+				"bubbles:true,cancelable:true}));var wEnter=u.wireModeActive;" +
+				"window.dispatchEvent(new KeyboardEvent('keydown',{key:'w',keyCode:87," +
+				"bubbles:true,cancelable:true}));var wExit=!u.wireModeActive;" +
+				"w.wiringModeButton.click();fire('mousedown',x,y+60);" +
+				"fire('mousedown',x+80,y+60);fire('mousemove',x+130,y+60);" +
+				"window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',keyCode:27," +
+				"bubbles:true,cancelable:true}));var esc=count()===before+2&&!u.wireModeActive;" +
+				"return repeated&&toolbarExit&&wEnter&&wExit&&esc})()");
+			console.log('KNX_WIRING_TOGGLE_SMOKE', ready ? 'OK' : 'FAILED');
+		}
+
+		if (ready)
+		{
 			mainWindow.setMinimumSize(320, 600);
 			mainWindow.setSize(820, 900);
 			await new Promise((resolve) => setTimeout(resolve, 350));
@@ -220,13 +274,15 @@ async function createWindow(port)
 				"f.click();var menu=document.querySelector('.knxFileMenu');" +
 				"var r=d.getBoundingClientRect();var state={width:window.innerWidth,left:r.left," +
 				"right:r.right,nav:getComputedStyle(n).display,menu:getComputedStyle(menu).display," +
-				"menuTop:menu.getBoundingClientRect().top};f.click();p.click();" +
+				"menuTop:menu.getBoundingClientRect().top,handles:Array.from(document.querySelectorAll(" +
+				"'.knxPanelResizeHandle')).every(function(x){return getComputedStyle(x).display==='none'})};" +
+				"f.click();p.click();" +
 				"setTimeout(function(){state.project=document.querySelector('.knxWorkspace')" +
 				".classList.contains('knxMobileProjectOpen');state.expanded=" +
 				"p.getAttribute('aria-expanded');done(state)},250)})");
 			ready = mobileResult.left <= 1 && mobileResult.right >= mobileResult.width - 1 &&
 				mobileResult.nav === 'grid' && mobileResult.menu === 'block' &&
-				mobileResult.menuTop >= 60 && mobileResult.project &&
+				mobileResult.menuTop >= 60 && mobileResult.handles && mobileResult.project &&
 				mobileResult.expanded === 'true';
 
 			if (!ready)

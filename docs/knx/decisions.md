@@ -79,11 +79,11 @@ retaining its green style and stable endpoint requirements.
   HTML card handlers; equipment endpoints are resolved from rendered bounds.
 - `W` is owned at the Window capture phase for the visible KNX graph. Mode entry
   never resets `mxConnectionHandler` and temporarily rejects cell removal.
-- Right-click or Escape completes an active wire and leaves the tool armed;
-  the live cursor is persisted as its endpoint even without another left click.
-  Repeating the command while idle exits; the Canvas context menu remains
-  suppressed while armed. Backspace removes an anchor and Space changes the
-  next elbow direction.
+- Right-click completes an active wire and leaves the tool armed; the live cursor
+  is persisted as its endpoint even without another left click. Escape finishes
+  a viable route and exits as superseded by DR-2026-08-04-06. The Canvas context
+  menu remains suppressed while armed. Backspace removes an anchor and Space
+  changes the next elbow direction.
 
 ## DR-2026-08-03-07 — Power Supply Line address
 
@@ -164,3 +164,15 @@ retaining its green style and stable endpoint requirements.
 - Narrow web viewports use a full-width Canvas plus overlay Project/Properties
   panels and bottom navigation. These rules live only below the desktop breakpoint
   and therefore cannot alter the PC layout.
+
+## DR-2026-08-04-06 — Explicit Wiring exit and bounded desktop panels
+
+- A stationary repeated left-click on the latest non-initial waypoint commits the
+  active wire there. The initial point alone never creates a zero-length edge.
+- Wiring Mode is a true toggle through `W` and the toolbar action. Those commands,
+  plus Escape, finish a viable current route and then exit; right-click retains
+  its finish-and-stay-armed workflow.
+- Desktop Project and Properties widths are controlled by independent separators,
+  bounded to keep a usable Canvas and stored as browser-local presentation state.
+  No panel width is serialized into KNX project data, and mobile drawers ignore
+  desktop resizers.

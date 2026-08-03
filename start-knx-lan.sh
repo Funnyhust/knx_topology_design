@@ -22,12 +22,12 @@ if [[ ! -f "${WEB_ROOT}/index.html" ]]; then
 fi
 
 printf 'KNX topology server\n'
-printf 'Local: http://127.0.0.1:%s/?v=20260804-38\n' "${PORT}"
+printf 'Local: http://127.0.0.1:%s/?v=20260804-39\n' "${PORT}"
 
 if command -v hostname >/dev/null 2>&1; then
 	for address in $(hostname -I 2>/dev/null); do
 		[[ "${address}" != *.* || "${address}" == 127.* || "${address}" == 169.254.* ]] && continue
-		printf 'LAN:   http://%s:%s/?v=20260804-38\n' "${address}" "${PORT}"
+		printf 'LAN:   http://%s:%s/?v=20260804-39\n' "${address}" "${PORT}"
 	done
 fi
 

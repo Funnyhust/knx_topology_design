@@ -14,11 +14,11 @@ $addresses = Get-NetIPAddress -AddressFamily IPv4 |
 	Select-Object -ExpandProperty IPAddress
 
 Write-Host "KNX topology server"
-Write-Host "Local: http://127.0.0.1:$Port/?v=20260804-38"
+Write-Host "Local: http://127.0.0.1:$Port/?v=20260804-39"
 
 foreach ($address in $addresses)
 {
-	Write-Host "LAN:   http://${address}:$Port/?v=20260804-38"
+	Write-Host "LAN:   http://${address}:$Port/?v=20260804-39"
 }
 
 Write-Host "Press Ctrl+C to stop."

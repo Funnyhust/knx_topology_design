@@ -37,7 +37,7 @@
 			var link = document.createElement('link');
 			link.id = 'knx-workspace-styles';
 			link.rel = 'stylesheet';
-			link.href = 'js/knx/KnxWorkspace.css?v=20260804-38';
+			link.href = 'js/knx/KnxWorkspace.css?v=20260804-39';
 			document.head.appendChild(link);
 		}
 	};
@@ -1199,6 +1199,208 @@
 		}
 	};
 
+	KnxWorkspace.prototype.getPanelWidthLimits = function(side)
+	{
+		var minimum = side == 'left' ? 220 : 260;
+		var maximum = side == 'left' ? 480 : 520;
+		var viewportWidth = this.editorUi.container.clientWidth || window.innerWidth;
+
+		if (viewportWidth < 1180)
+		{
+			return {minimum: minimum, maximum: maximum};
+		}
+
+		var other = side == 'left' ? this.rightPanelWidth : this.leftPanelWidth;
+		var available = Math.max(minimum, viewportWidth -
+			(other || (side == 'left' ? 320 : 280)) - 420);
+		return {minimum: minimum, maximum: Math.max(minimum, Math.min(maximum, available))};
+	};
+
+	KnxWorkspace.prototype.savePanelWidths = function()
+	{
+		try
+		{
+			window.localStorage.setItem('knxPanelWidths', JSON.stringify({
+				left: this.leftPanelWidth,
+				right: this.rightPanelWidth
+			}));
+		}
+		catch (e)
+		{
+			// Browser storage can be unavailable in private or embedded contexts.
+		}
+	};
+
+	KnxWorkspace.prototype.setPanelWidth = function(side, value, persist)
+	{
+		var limits = this.getPanelWidthLimits(side);
+		value = Math.round(Math.max(limits.minimum, Math.min(limits.maximum, value)));
+		var property = side == 'left' ? '--knx-left-width' : '--knx-right-width';
+		this.editorUi.container.style.setProperty(property, value + 'px');
+
+		if (side == 'left')
+		{
+			this.leftPanelWidth = value;
+			this.editorUi.hsplitPosition = value;
+		}
+		else
+		{
+			this.rightPanelWidth = value;
+			this.editorUi.formatWidth = value;
+		}
+
+		var handle = side == 'left' ? this.leftPanelResizeHandle :
+			this.rightPanelResizeHandle;
+
+		if (handle != null)
+		{
+			handle.setAttribute('aria-valuemin', String(limits.minimum));
+			handle.setAttribute('aria-valuemax', String(limits.maximum));
+			handle.setAttribute('aria-valuenow', String(value));
+		}
+
+		var diagramContainer = this.graph.container || this.editorUi.diagramContainer;
+		var scrollLeft = diagramContainer != null ? diagramContainer.scrollLeft : 0;
+		var scrollTop = diagramContainer != null ? diagramContainer.scrollTop : 0;
+
+		if (this.graph.container != null)
+		{
+			this.graph.sizeDidChange();
+		}
+
+		if (diagramContainer != null)
+		{
+			diagramContainer.scrollLeft = scrollLeft;
+			diagramContainer.scrollTop = scrollTop;
+		}
+
+		if (persist)
+		{
+			this.savePanelWidths();
+		}
+
+		return value;
+	};
+
+	KnxWorkspace.prototype.createPanelResizeHandles = function()
+	{
+		var workspace = this;
+		this.leftPanelWidth = 280;
+		this.rightPanelWidth = 320;
+
+		try
+		{
+			var stored = JSON.parse(window.localStorage.getItem('knxPanelWidths'));
+
+			if (stored != null && isFinite(stored.left) && isFinite(stored.right))
+			{
+				this.leftPanelWidth = Number(stored.left);
+				this.rightPanelWidth = Number(stored.right);
+			}
+		}
+		catch (e)
+		{
+			// Invalid or unavailable storage falls back to the established widths.
+		}
+
+		function createHandle(side, label)
+		{
+			var handle = document.createElement('div');
+			handle.className = 'knxPanelResizeHandle knxPanelResizeHandle-' + side;
+			handle.tabIndex = 0;
+			handle.setAttribute('role', 'separator');
+			handle.setAttribute('aria-label', label);
+			handle.setAttribute('aria-orientation', 'vertical');
+			var startX = 0;
+			var startWidth = 0;
+
+			handle.addEventListener('pointerdown', function(evt)
+			{
+				if (window.innerWidth < 1180 || evt.button != 0)
+				{
+					return;
+				}
+
+				startX = evt.clientX;
+				startWidth = side == 'left' ? workspace.leftPanelWidth :
+					workspace.rightPanelWidth;
+				handle.setPointerCapture(evt.pointerId);
+				workspace.editorUi.container.classList.add('knxPanelResizing');
+				evt.preventDefault();
+			});
+
+			handle.addEventListener('pointermove', function(evt)
+			{
+				if (!handle.hasPointerCapture(evt.pointerId))
+				{
+					return;
+				}
+
+				var delta = evt.clientX - startX;
+				workspace.setPanelWidth(side, startWidth +
+					(side == 'left' ? delta : -delta), false);
+			});
+
+			var finish = function(evt)
+			{
+				if (handle.hasPointerCapture(evt.pointerId))
+				{
+					handle.releasePointerCapture(evt.pointerId);
+					workspace.editorUi.container.classList.remove('knxPanelResizing');
+					workspace.savePanelWidths();
+				}
+			};
+			handle.addEventListener('pointerup', finish);
+			handle.addEventListener('pointercancel', finish);
+			handle.addEventListener('dblclick', function()
+			{
+				workspace.setPanelWidth(side, side == 'left' ? 280 : 320, true);
+			});
+			handle.addEventListener('keydown', function(evt)
+			{
+				var current = side == 'left' ? workspace.leftPanelWidth :
+					workspace.rightPanelWidth;
+				var value = current;
+
+				if (evt.key == 'ArrowLeft')
+				{
+					value += side == 'left' ? -10 : 10;
+				}
+				else if (evt.key == 'ArrowRight')
+				{
+					value += side == 'left' ? 10 : -10;
+				}
+				else if (evt.key == 'Home')
+				{
+					value = workspace.getPanelWidthLimits(side).minimum;
+				}
+				else if (evt.key == 'End')
+				{
+					value = workspace.getPanelWidthLimits(side).maximum;
+				}
+				else
+				{
+					return;
+				}
+
+				workspace.setPanelWidth(side, value, true);
+				evt.preventDefault();
+			});
+			workspace.editorUi.container.appendChild(handle);
+			return handle;
+		}
+
+		this.leftPanelResizeHandle = createHandle('left', 'Resize Project panel');
+		this.rightPanelResizeHandle = createHandle('right', 'Resize Properties panel');
+		this.setPanelWidth('left', this.leftPanelWidth, false);
+		this.setPanelWidth('right', this.rightPanelWidth, false);
+		window.addEventListener('resize', function()
+		{
+			workspace.setPanelWidth('left', workspace.leftPanelWidth, false);
+			workspace.setPanelWidth('right', workspace.rightPanelWidth, false);
+		});
+	};
+
 	KnxWorkspace.prototype.configureSidebar = function()
 	{
 		var palettes = this.editorUi.sidebar.palettes;
@@ -1336,6 +1538,7 @@
 		this.editorUi.container.className += ' knxWorkspace';
 		this.createHeader();
 		this.createMobileControls();
+		this.createPanelResizeHandles();
 		this.configureSidebar();
 		this.createCanvasTools();
 		this.createStatusBar();

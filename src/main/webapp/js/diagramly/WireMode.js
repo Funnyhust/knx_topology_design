@@ -3,8 +3,9 @@
  *
  * W arms Wiring Mode without selecting or mutating a cell. The first click can
  * start on equipment or in free space. Further clicks add orthogonal vertices;
- * clicking equipment completes the current wire. Esc/right-click completes the
- * current wire and keeps the mode armed, then exits when no wire is active.
+ * clicking equipment or clicking the latest corner again completes the wire.
+ * W/the toolbar toggles the mode; Esc completes any active wire and exits.
+ * Right-click completes the current wire and keeps the mode armed.
  */
 (function()
 {
@@ -333,9 +334,19 @@
 		var addWireAnchor = function(point)
 		{
 			var anchors = ui.wireModeAnchors;
+			var repeatedAnchor = anchors.length > 0 && samePoint(
+				anchors[anchors.length - 1].point, point.point);
 
-			if (anchors.length == 0 || !samePoint(
-				anchors[anchors.length - 1].point, point.point))
+			// A second left-click without moving past the latest corner explicitly
+			// finishes the route at that corner. A repeated first point cannot form
+			// a non-zero wire and therefore remains armed.
+			if (repeatedAnchor && anchors.length > 1)
+			{
+				commitCurrentWire();
+				return;
+			}
+
+			if (!repeatedAnchor)
 			{
 				anchors.push(point);
 			}
@@ -347,8 +358,8 @@
 			else
 			{
 				redrawWirePreview(ui.wireModeCursor);
-				ui.editor.setStatus('Wiring Mode: click adds a corner; click equipment ' +
-					'to finish; right-click/Esc completes; Backspace removes a corner.');
+				ui.editor.setStatus('Wiring Mode: click adds a corner; click the same corner ' +
+					'again or click equipment to finish; W/Esc exits.');
 			}
 		};
 		var finishCurrentWire = function()
@@ -444,10 +455,25 @@
 			return true;
 		};
 
+		this.toggleWireMode = function()
+		{
+			if (!ui.wireModeActive)
+			{
+				return ui.enterWireMode();
+			}
+
+			if (ui.wireModeAnchors != null && ui.wireModeAnchors.length > 0)
+			{
+				finishCurrentWire();
+			}
+
+			return ui.cancelWireMode();
+		};
+
 		// Compatibility entry point used by existing toolbar and topology menus.
 		this.startWireModeFromCell = function()
 		{
-			return ui.enterWireMode();
+			return ui.toggleWireMode();
 		};
 
 		if (this.wireModeMouseListener == null)
@@ -631,7 +657,7 @@
 						evt.stopImmediatePropagation();
 					}
 
-					ui.enterWireMode();
+					ui.toggleWireMode();
 					mxEvent.consume(evt);
 				}
 				else if (ui.wireModeActive && !textInput)
@@ -644,10 +670,8 @@
 						{
 							finishCurrentWire();
 						}
-						else
-						{
-							ui.cancelWireMode();
-						}
+
+						ui.cancelWireMode();
 					}
 					else if (evt.keyCode == 8 || evt.keyCode == 46)
 					{

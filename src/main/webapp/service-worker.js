@@ -18,9 +18,9 @@
 self.skipWaiting();
 
 var MANIFEST = [
-  {"url":"js/bootstrap.js","revision":"14c63483d4fbcaee16dc68f53e9ac6a9"},
+  {"url":"js/bootstrap.js","revision":"f72418dd4c23081c7738f4ec232943e1"},
   {"url":"js/main.js","revision":"e596a5957399aa19398c19e8a4a1d060"},
-  {"url":"js/app.min.js","revision":"db7d9035e9368e66d53141c507de0fc4"},
+  {"url":"js/app.min.js","revision":"5aa3e68e7a0ac975d0173c1d33969b97"},
   {"url":"js/extensions.min.js","revision":"9e9cf7979e890482794830ccec4f015f"},
   {"url":"js/plantuml/drawio-plantuml.min.js","revision":"64348263302fd084d028d59b2b18525a"},
   {"url":"js/orgchart.min.js","revision":"e512c8483a2c5888d2721489b7a1c911"},
@@ -29,7 +29,7 @@ var MANIFEST = [
   {"url":"js/math-print.js","revision":"ad9cf0f2f2b614eac58ea72499c1017f"},
   {"url":"images/knx/logo-lumi.png","revision":"01d56b45f1961262113219d6f4ee1332"},
   {"url":"images/knx/logo-knx-member.jpg","revision":"9e682215b28dae0323afff3f7352f146"},
-  {"url":"index.html","revision":"24beccef29d9c89e057e2ef5aa3a82f9-30.3.11"},
+  {"url":"index.html","revision":"7698a9666f6b57fbc522ce32384365b2-30.3.11"},
   {"url":"open.html","revision":"d71816b3b00e769fc6019fcdd6921662-30.3.11"},
   {"url":"shortcuts.svg","revision":"2381dd779ce6cfee954042a7f784c7e6"},
   {"url":"styles/fonts/ArchitectsDaughter-Regular.ttf","revision":"31c2153c0530e32553b31a49b3d70736"},

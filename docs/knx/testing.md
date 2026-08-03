@@ -68,10 +68,17 @@
 - Equipment endpoint hit-testing works over both SVG and HTML card content.
 - Wiring preview and committed edges remain green and keep identical endpoints.
 - Completing or cancelling Wiring Mode never changes the equipment count.
-- Right-click/Escape commits the live cursor endpoint and does not open a menu.
+- A second left-click on the latest waypoint without intervening movement commits
+  the wire at that waypoint. It does not create a zero-length first segment.
+- Right-click commits the live cursor endpoint and keeps Wiring Mode armed. `W`,
+  the toolbar action and Escape commit any active route and exit the mode.
 - Right-button detection covers browser `popupTrigger`, `button` and `which`.
 - Backspace removes the last anchor; Space changes the next orthogonal elbow.
 - Manual waypoints survive connection commit, Undo/Redo and save/reload.
+- At desktop widths, dragging either panel separator updates only its own bounded
+  width, leaves at least 420px of Canvas, preserves scroll/zoom and persists the
+  result. Keyboard arrows/Home/End obey the same limits. Resize handles stay
+  hidden in the mobile overlay layout.
 
 ## Production verification
 

@@ -70,8 +70,15 @@ assert.ok(wireSource.includes('DrawioWireModeLoaded'),
 assert.ok(wireSource.includes('startWireModeFromCell'),
 	'Legacy wiring entry points must remain compatible');
 assert.ok(wireSource.includes('ui.enterWireMode()') &&
-	source.includes('this.editorUi.enterWireMode()'),
+	source.includes('this.editorUi.toggleWireMode()'),
 	'W and Connect Bus must arm the same source-independent wiring mode');
+assert.ok(wireSource.includes('var repeatedAnchor =') &&
+	wireSource.includes('if (repeatedAnchor && anchors.length > 1)') &&
+	wireSource.includes('commitCurrentWire();') &&
+	wireSource.includes('this.toggleWireMode = function()') &&
+	wireSource.includes('return ui.cancelWireMode();') &&
+	wireSource.includes('ui.toggleWireMode();'),
+	'A repeated stationary left-click must finish the wire and W/toolbar must toggle Wiring Mode');
 assert.ok(wireSource.includes("window.addEventListener('keydown'") &&
 	wireSource.includes('document.body.contains(graph.container)'),
 	'W must work from Canvas, Tree, Properties and toolbar focus');
@@ -207,6 +214,18 @@ assert.ok(workspaceSource.includes("attributeFilter: ['data-wire-mode']") &&
 	workspaceSource.includes("classList.toggle('knxWorkspaceActionActive', active)") &&
 	workspaceSource.includes("setAttribute('aria-pressed', active ? 'true' : 'false')"),
 	'Wiring toolbar action must visibly and accessibly reflect the armed mode state');
+assert.ok(workspaceSource.includes('createPanelResizeHandles') &&
+	workspaceSource.includes("window.localStorage.setItem('knxPanelWidths'") &&
+	workspaceSource.includes("createHandle('left', 'Resize Project panel')") &&
+	workspaceSource.includes("createHandle('right', 'Resize Properties panel')") &&
+	workspaceSource.includes('handle.setPointerCapture(evt.pointerId)') &&
+	workspaceSource.includes('workspace.setPanelWidth(side') &&
+	workspaceSource.includes('this.graph.container || this.editorUi.diagramContainer') &&
+	workspaceSource.includes("evt.key == 'ArrowLeft'") &&
+	workspaceCssSource.includes('@media (min-width: 1180px)') &&
+	workspaceCssSource.includes('.knxPanelResizeHandle-left') &&
+	workspaceCssSource.includes('.knxPanelResizeHandle-right'),
+	'Desktop Project and Properties panels must have bounded persistent mouse and keyboard resize handles');
 assert.ok(schemaSource.includes("value: 'device'") &&
 	schemaSource.includes("value: 'lc'") && schemaSource.includes("value: 'bc'") &&
 	schemaSource.includes("value: 'lineRepeater'") &&
