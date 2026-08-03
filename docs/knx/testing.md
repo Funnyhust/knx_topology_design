@@ -53,8 +53,9 @@
 - PNG/PDF title blocks load the packaged Lumi PNG and KNX Member JPEG, preserve
   both image aspect ratios and fail visibly if either required asset is missing.
 - PNG and PDF expose separate Grid/No grid choices. Grid variants contain minor
-  and major grid lines only behind the drawing region; No grid keeps the original
-  white drawing background. Neither path changes graph data or geometry.
+  and major graph-aligned grid lines only behind the drawing region; No grid keeps
+  the original white drawing background. Rendered pixel output from the two paths
+  must differ. Neither path changes graph data or geometry.
 - At `1180px` and wider the desktop panel bounds and toolbar remain unchanged.
   Below `1180px`, Canvas reaches both viewport edges, Project/Properties start
   off-canvas, bottom navigation opens one overlay at a time and touch targets are

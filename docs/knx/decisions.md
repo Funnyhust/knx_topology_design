@@ -157,8 +157,9 @@ retaining its green style and stable endpoint requirements.
 
 ## DR-2026-08-04-05 — Export grid and isolated mobile workspace
 
-- PNG and PDF expose explicit Grid and No grid export variants. The export grid
-  is composed behind drawing content and is not serialized into the KNX project.
+- PNG and PDF expose explicit Grid and No grid export variants. Grid variants use
+  draw.io's graph-aligned native export grid behind drawing content; the grid is
+  not serialized into the KNX project.
 - Desktop keeps its established three-column engineering layout at `1180px` and
   wider, matching the portable application's minimum window width.
 - Narrow web viewports use a full-width Canvas plus overlay Project/Properties

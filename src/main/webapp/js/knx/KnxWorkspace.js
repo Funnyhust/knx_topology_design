@@ -37,7 +37,7 @@
 			var link = document.createElement('link');
 			link.id = 'knx-workspace-styles';
 			link.rel = 'stylesheet';
-			link.href = 'js/knx/KnxWorkspace.css?v=20260804-39';
+			link.href = 'js/knx/KnxWorkspace.css?v=20260804-40';
 			document.head.appendChild(link);
 		}
 	};
@@ -789,38 +789,7 @@
 			y + (height - drawHeight) / 2, drawWidth, drawHeight);
 	};
 
-	KnxWorkspace.prototype.drawTechnicalGrid = function(context, x, y, width, height)
-	{
-		var spacing = Math.max(16, Math.round(this.graph.gridSize * 2));
-		context.save();
-		context.beginPath();
-		context.rect(x, y, width, height);
-		context.clip();
-
-		for (var gx = 0; gx <= width; gx += spacing)
-		{
-			context.beginPath();
-			context.strokeStyle = gx % (spacing * 5) == 0 ? '#cbd5e1' : '#e8edf3';
-			context.lineWidth = gx % (spacing * 5) == 0 ? 1.2 : 0.7;
-			context.moveTo(x + gx + 0.5, y);
-			context.lineTo(x + gx + 0.5, y + height);
-			context.stroke();
-		}
-
-		for (var gy = 0; gy <= height; gy += spacing)
-		{
-			context.beginPath();
-			context.strokeStyle = gy % (spacing * 5) == 0 ? '#cbd5e1' : '#e8edf3';
-			context.lineWidth = gy % (spacing * 5) == 0 ? 1.2 : 0.7;
-			context.moveTo(x, y + gy + 0.5);
-			context.lineTo(x + width, y + gy + 0.5);
-			context.stroke();
-		}
-
-		context.restore();
-	};
-
-	KnxWorkspace.prototype.createTechnicalDrawingCanvas = function(sourceCanvas, logos, includeGrid)
+	KnxWorkspace.prototype.createTechnicalDrawingCanvas = function(sourceCanvas, logos)
 	{
 		var scale = Math.max(1, sourceCanvas.width / 1600);
 		var padding = Math.round(32 * scale);
@@ -834,12 +803,6 @@
 		var context = canvas.getContext('2d');
 		context.fillStyle = '#ffffff';
 		context.fillRect(0, 0, width, height);
-
-		if (includeGrid)
-		{
-			this.drawTechnicalGrid(context, padding, padding,
-				sourceCanvas.width, sourceCanvas.height);
-		}
 
 		context.drawImage(sourceCanvas, padding, padding);
 		context.strokeStyle = '#111827';
@@ -938,14 +901,14 @@
 			{
 				try
 				{
-					callback(this.createTechnicalDrawingCanvas(canvas, logos, includeGrid));
+					callback(this.createTechnicalDrawingCanvas(canvas, logos));
 				}
 				catch (e)
 				{
 					errorCallback(e);
 				}
-			}), null, null, includeGrid ? null : '#ffffff', errorCallback, null, true, 2, false, false,
-				null, null, 0, false, false);
+			}), null, null, '#ffffff', errorCallback, null, true, 2, false, false,
+				null, null, 0, false, includeGrid);
 		}), errorCallback);
 	};
 

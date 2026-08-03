@@ -199,11 +199,8 @@ async function createWindow(port)
 				"(function(){var d=document.querySelector('.geDiagramContainer');" +
 				"var n=document.querySelector('.knxMobileNav');var r=d.getBoundingClientRect();" +
 				"var o=Array.from(document.querySelector('.knxProjectDownloadFormat').options)" +
-				".map(function(x){return x.value});var c=document.createElement('canvas');" +
-				"c.width=c.height=100;var g=c.getContext('2d');g.fillStyle='#fff';" +
-				"g.fillRect(0,0,100,100);document.querySelector('.knxWorkspace').knxWorkspace" +
-				".drawTechnicalGrid(g,0,0,100,100);var pixel=g.getImageData(0,0,1,1).data;" +
-				"return r.left>0&&r.right<window.innerWidth&&pixel[0]<255&&" +
+				".map(function(x){return x.value});" +
+				"return r.left>0&&r.right<window.innerWidth&&" +
 				"getComputedStyle(n).display==='none'&&o.indexOf('png-grid')>=0&&" +
 				"o.indexOf('pdf-grid')>=0})()");
 		}
@@ -260,6 +257,21 @@ async function createWindow(port)
 				"bubbles:true,cancelable:true}));var esc=count()===before+2&&!u.wireModeActive;" +
 				"return repeated&&toolbarExit&&wEnter&&wExit&&esc})()");
 			console.log('KNX_WIRING_TOGGLE_SMOKE', ready ? 'OK' : 'FAILED');
+		}
+
+		if (ready)
+		{
+			ready = await mainWindow.webContents.executeJavaScript(
+				"new Promise(function(done){var w=document.querySelector('.knxWorkspace')" +
+				".knxWorkspace;function fail(){done(false)}function render(grid,next){" +
+				"w.exportTechnicalDrawing(next,fail,grid)}render(false,function(plain){" +
+				"render(true,function(gridded){if(plain.width!==gridded.width||" +
+				"plain.height!==gridded.height){done(false);return}var a=plain.getContext('2d')" +
+				".getImageData(0,0,plain.width,plain.height).data;var b=gridded" +
+				".getContext('2d').getImageData(0,0,gridded.width,gridded.height).data;" +
+				"var diff=0;for(var i=0;i<a.length&&diff<400;i+=4){if(a[i]!==b[i]||" +
+				"a[i+1]!==b[i+1]||a[i+2]!==b[i+2])diff++}done(diff>=100)})})})");
+			console.log('KNX_EXPORT_GRID_SMOKE', ready ? 'OK' : 'FAILED');
 		}
 
 		if (ready)

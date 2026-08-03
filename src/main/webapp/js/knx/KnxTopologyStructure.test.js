@@ -153,8 +153,8 @@ assert.ok(workspaceSource.includes('createProjectDownloadControl') &&
 	workspaceSource.includes('saveProjectToDevice(select.value)') &&
 	workspaceSource.includes('exportProjectPngToDevice') &&
 	workspaceSource.includes('exportProjectPdfToDevice') &&
-	workspaceSource.includes('drawTechnicalGrid') &&
-	workspaceSource.includes("includeGrid ? null : '#ffffff'") &&
+	workspaceSource.includes("null, null, 0, false, includeGrid") &&
+	!workspaceSource.includes('drawTechnicalGrid') &&
 	workspaceSource.includes('@page{size:') &&
 	workspaceSource.includes('createTechnicalDrawingCanvas') &&
 	workspaceSource.includes("this.editorUi.getFileData(true)") &&
