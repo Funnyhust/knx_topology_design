@@ -3,6 +3,9 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
+const APP_ID = 'vn.knx.topology';
+const APP_ICON = path.join(__dirname, 'assets', 'icon.ico');
+
 const MIME_TYPES = {
 	'.css': 'text/css; charset=utf-8',
 	'.gif': 'image/gif',
@@ -127,6 +130,7 @@ async function createWindow(port)
 		show: true,
 		backgroundColor: '#ffffff',
 		title: 'KNX Topology',
+		icon: APP_ICON,
 		webPreferences: {
 			contextIsolation: true,
 			nodeIntegration: false,
@@ -167,11 +171,67 @@ async function createWindow(port)
 		{
 			ready = await mainWindow.webContents.executeJavaScript(
 				"document.querySelector('.knxEquipmentTypeSelect') != null && " +
-				"document.querySelector('.geDiagramContainer') != null");
+				"document.querySelector('.geDiagramContainer') != null && " +
+				"document.querySelector('.knxFileMenuButton') != null");
 
 			if (!ready)
 			{
 				await new Promise((resolve) => setTimeout(resolve, 250));
+			}
+		}
+
+		if (ready)
+		{
+			ready = await mainWindow.webContents.executeJavaScript(
+				"(function(){var b=document.querySelector('.knxFileMenuButton');" +
+				"b.click();var t=Array.from(document.querySelectorAll(" +
+				"'.knxFileMenuItem span:last-child'))" +
+				".map(function(x){return x.textContent.trim()});var ok=" +
+				"['New Project','Open Project...','Import Drawing...'," +
+				"'Save Project (.lukatp)','Export PNG · No grid','Export PNG · Grid'," +
+				"'Export PDF · No grid','Export PDF · Grid']" +
+				".every(function(x){return t.indexOf(x)>=0});b.click();return ok})()");
+		}
+
+		if (ready)
+		{
+			ready = await mainWindow.webContents.executeJavaScript(
+				"(function(){var d=document.querySelector('.geDiagramContainer');" +
+				"var n=document.querySelector('.knxMobileNav');var r=d.getBoundingClientRect();" +
+				"var o=Array.from(document.querySelector('.knxProjectDownloadFormat').options)" +
+				".map(function(x){return x.value});var c=document.createElement('canvas');" +
+				"c.width=c.height=100;var g=c.getContext('2d');g.fillStyle='#fff';" +
+				"g.fillRect(0,0,100,100);document.querySelector('.knxWorkspace').knxWorkspace" +
+				".drawTechnicalGrid(g,0,0,100,100);var pixel=g.getImageData(0,0,1,1).data;" +
+				"return r.left>0&&r.right<window.innerWidth&&pixel[0]<255&&" +
+				"getComputedStyle(n).display==='none'&&o.indexOf('png-grid')>=0&&" +
+				"o.indexOf('pdf-grid')>=0})()");
+		}
+
+		if (ready)
+		{
+			mainWindow.setMinimumSize(320, 600);
+			mainWindow.setSize(820, 900);
+			await new Promise((resolve) => setTimeout(resolve, 350));
+			const mobileResult = await mainWindow.webContents.executeJavaScript(
+				"new Promise(function(done){var d=document.querySelector('.geDiagramContainer');" +
+				"var n=document.querySelector('.knxMobileNav');var p=document.querySelector(" +
+				"'.knxMobileNavButton');var f=document.querySelector('.knxFileMenuButton');" +
+				"f.click();var menu=document.querySelector('.knxFileMenu');" +
+				"var r=d.getBoundingClientRect();var state={width:window.innerWidth,left:r.left," +
+				"right:r.right,nav:getComputedStyle(n).display,menu:getComputedStyle(menu).display," +
+				"menuTop:menu.getBoundingClientRect().top};f.click();p.click();" +
+				"setTimeout(function(){state.project=document.querySelector('.knxWorkspace')" +
+				".classList.contains('knxMobileProjectOpen');state.expanded=" +
+				"p.getAttribute('aria-expanded');done(state)},250)})");
+			ready = mobileResult.left <= 1 && mobileResult.right >= mobileResult.width - 1 &&
+				mobileResult.nav === 'grid' && mobileResult.menu === 'block' &&
+				mobileResult.menuTop >= 60 && mobileResult.project &&
+				mobileResult.expanded === 'true';
+
+			if (!ready)
+			{
+				console.error('KNX_MOBILE_SMOKE_DETAILS', JSON.stringify(mobileResult));
 			}
 		}
 
@@ -202,6 +262,7 @@ else
 
 	app.whenReady().then(async () =>
 	{
+		app.setAppUserModelId(APP_ID);
 		Menu.setApplicationMenu(null);
 		session.defaultSession.setPermissionRequestHandler((webContents,
 			permission, callback) => callback(false));

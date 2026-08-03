@@ -15,14 +15,38 @@ if errorlevel 1 (
   exit /b 1
 )
 
+set "PORTABLE_TOOL_CACHE=%TEMP%\knx-build-tools"
+set "JAVA_COMMAND="
+if defined JAVA_HOME if exist "%JAVA_HOME%\bin\java.exe" set "JAVA_COMMAND=%JAVA_HOME%\bin\java.exe"
+if not defined JAVA_COMMAND for /f "delims=" %%J in ('where java.exe 2^>nul') do if not defined JAVA_COMMAND set "JAVA_COMMAND=%%J"
+if not defined JAVA_COMMAND for /d %%J in ("%PORTABLE_TOOL_CACHE%\jdk-complete\jdk-*") do if exist "%%~fJ\bin\java.exe" if not defined JAVA_COMMAND (
+  set "JAVA_HOME=%%~fJ"
+  set "JAVA_COMMAND=%%~fJ\bin\java.exe"
+)
+
+if not defined JAVA_COMMAND (
+  echo [ERROR] Java JDK was not found.
+  echo Set JAVA_HOME, add java.exe to PATH, or restore %PORTABLE_TOOL_CACHE%.
+  goto :cleanup
+)
+
 set "ANT_COMMAND="
 if defined ANT_HOME if exist "%ANT_HOME%\bin\ant.bat" set "ANT_COMMAND=%ANT_HOME%\bin\ant.bat"
 if not defined ANT_COMMAND if exist "%~dp0..\ant-tooling\apache-ant-1.10.17\bin\ant.bat" set "ANT_COMMAND=%~dp0..\ant-tooling\apache-ant-1.10.17\bin\ant.bat"
+if not defined ANT_COMMAND for /d %%A in ("%PORTABLE_TOOL_CACHE%\ant\apache-ant-*") do if exist "%%~fA\bin\ant.bat" if not defined ANT_COMMAND set "ANT_COMMAND=%%~fA\bin\ant.bat"
 if not defined ANT_COMMAND for /f "delims=" %%A in ('where ant.bat 2^>nul') do if not defined ANT_COMMAND set "ANT_COMMAND=%%A"
 
 if not defined ANT_COMMAND (
   echo [ERROR] Apache Ant was not found.
-  echo Set ANT_HOME or install Ant and add it to PATH.
+  echo Set ANT_HOME, add ant.bat to PATH, or restore %PORTABLE_TOOL_CACHE%.
+  goto :cleanup
+)
+
+echo Build Java: %JAVA_COMMAND%
+echo Build Ant:  %ANT_COMMAND%
+
+if /i "%~1"=="--check-tools" (
+  set "BUILD_EXIT=0"
   goto :cleanup
 )
 
@@ -40,6 +64,8 @@ if errorlevel 1 (
 
 echo [1/4] Running KNX regression checks...
 node --check "desktop\main.js"
+if errorlevel 1 goto :cleanup
+node "desktop\DesktopConfig.test.js"
 if errorlevel 1 goto :cleanup
 node "src\main\webapp\js\knx\KnxLayoutFoundation.test.js"
 if errorlevel 1 goto :cleanup

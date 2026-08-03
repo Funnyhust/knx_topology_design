@@ -10,6 +10,8 @@
 
 - Toolbar contains no Add Area or Add Line entry point.
 - Add Device exposes Device, LC, BC, Line Repeater and red KNX Power Supply.
+- Power Supply, LC and BC quick-add actions enter the matching manual placement
+  preview directly, without changing the Add Device selector first.
 - Add Device remains manual, works without a selected Line and creates no
   structural cell or connector.
 - Valid IA derives the expected Area/Line group; invalid IA remains visible.
@@ -23,6 +25,8 @@
 
 ## UI regression
 
+- Browser title/favicon use Lumi branding, and the workspace header loads visible
+  Lumi and KNX Member images without changing toolbar or sidebar bounds.
 - Tree, Canvas and Properties selection remain synchronized.
 - Name, IA/Power Supply Line address, Manufacturer, Order Number, Application Name
   and Room redraw live.
@@ -30,6 +34,31 @@
 - Existing cards normalize to `180 × 100`; Name and IA remain readable at 1:1.
 - Toolbar, sidebar, Properties panel and status bar retain their bounds.
 - Zoom and scroll position do not change during normal topology commands.
+- File menu exposes New Project, Open Project, Import Drawing, Save Project,
+  Export PNG and Export PDF. New/Open warn before discarding modified work;
+  invalid XML does not replace the current project.
+- Open Project replaces both the drawing and its Project Info. Import Drawing adds
+  cells at a free insertion point, selects the imported cells and preserves every
+  current Project Info value.
+- Download offers editable `.lukatp`, PNG and PDF without opening Drive or another cloud
+  authorization dialog. LUKA Topology remains editable; PNG and PDF render the
+  whole graph inside a technical border with a bottom-right title block.
+- The actual browser download filename ends in one `.lukatp` and never in
+  `.lukatp.drawio`, `.lukatp.xml` or a duplicated project extension.
+- Save Project clears the modified flag only after creating the local snapshot;
+  edits made after that save restore the unsaved-change warning.
+- Project Info survives `.lukatp` save/reload, while equipment count is derived
+  from the current equipment set. The PDF print document uses a single custom
+  page whose aspect ratio follows the framed drawing instead of fixed A4.
+- PNG/PDF title blocks load the packaged Lumi PNG and KNX Member JPEG, preserve
+  both image aspect ratios and fail visibly if either required asset is missing.
+- PNG and PDF expose separate Grid/No grid choices. Grid variants contain minor
+  and major grid lines only behind the drawing region; No grid keeps the original
+  white drawing background. Neither path changes graph data or geometry.
+- At `1180px` and wider the desktop panel bounds and toolbar remain unchanged.
+  Below `1180px`, Canvas reaches both viewport edges, Project/Properties start
+  off-canvas, bottom navigation opens one overlay at a time and touch targets are
+  at least `44px` high.
 - `W` arms Wiring Mode without requiring or changing hover/selection.
 - The Wiring Mode toolbar action turns blue with `aria-pressed=true` when armed
   by either `W` or click, and returns to default when the mode exits.
@@ -55,6 +84,8 @@
 
 ## Windows portable verification
 
+- `DesktopConfig.test.js` requires the packaged Lumi ICO, electron-builder icon,
+  BrowserWindow icon, Windows AppUserModelID and all seven Windows icon sizes.
 - `build-portable.bat` must stop when a KNX regression suite, Ant or packaging fails.
 - Only one portable build may own the shared Ant temporary directory at a time.
 - Extract the portable ZIP, run `KNX Topology.exe --smoke-test` and require exit code `0`.

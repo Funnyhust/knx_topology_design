@@ -109,15 +109,24 @@
 	border-right: 1px solid var(--knx-border);
 }
 
-.knxWorkspaceLogo {
-	font-size: 22px;
-	font-weight: 800;
-	letter-spacing: 1px;
+.knxWorkspaceBrandMarks {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	min-width: 0;
 }
 
-.knxWorkspaceLogo i {
-	font-style: normal;
-	color: var(--knx-green);
+.knxWorkspaceLumiLogo {
+	width: 32px;
+	height: 32px;
+	object-fit: contain;
+}
+
+.knxWorkspaceKnxMemberLogo {
+	width: 70px;
+	height: 42px;
+	object-fit: contain;
+	background: #fff;
 }
 
 .knxWorkspaceBrandDivider {
@@ -144,6 +153,78 @@
 	gap: 2px;
 }
 
+.knxFileMenuControl {
+	position: relative;
+	height: 100%;
+	display: flex;
+	align-items: stretch;
+}
+
+.knxFileMenuButton {
+	min-width: 58px;
+}
+
+.knxFilePicker {
+	display: none;
+}
+
+.knxFileMenu {
+	position: absolute;
+	z-index: 30;
+	top: calc(100% - 2px);
+	left: 4px;
+	display: none;
+	min-width: 220px;
+	box-sizing: border-box;
+	padding: 6px;
+	border: 1px solid #d0d5dd;
+	border-radius: 7px;
+	background: #fff;
+	box-shadow: 0 12px 30px rgba(16, 24, 40, .18);
+}
+
+.knxFileMenuOpen .knxFileMenu {
+	display: block;
+}
+
+.knxFileMenuItem {
+	width: 100%;
+	height: 34px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	box-sizing: border-box;
+	padding: 0 10px;
+	border: 0;
+	border-radius: 5px;
+	background: transparent;
+	color: #344054;
+	font: 12px Inter, "Segoe UI", Arial, sans-serif;
+	text-align: left;
+	cursor: pointer;
+}
+
+.knxFileMenuItem:hover,
+.knxFileMenuItem:focus-visible {
+	outline: none;
+	background: #eef4ff;
+	color: var(--knx-blue);
+}
+
+.knxFileMenuItemIcon {
+	width: 24px;
+	color: #667085;
+	font-size: 11px;
+	font-weight: 700;
+	text-align: center;
+}
+
+.knxFileMenuSeparator {
+	height: 1px;
+	margin: 5px 4px;
+	background: var(--knx-border);
+}
+
 .knxEquipmentAddControl {
 	height: 100%;
 	display: flex;
@@ -151,7 +232,143 @@
 	gap: 6px;
 	box-sizing: border-box;
 	padding: 0 8px;
+}
+
+.knxEquipmentQuickActions {
+	height: 100%;
+	display: flex;
+	align-items: stretch;
 	border-right: 1px solid var(--knx-border);
+}
+
+.knxWorkspaceAction.knxEquipmentQuickAction {
+	min-width: 58px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.knxEquipmentQuickAction .knxWorkspaceActionIcon {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.knxEquipmentQuickAction-powerSupply .knxWorkspaceActionIcon {
+	color: #d92d20;
+}
+
+.knxEquipmentQuickAction-lc .knxWorkspaceActionIcon {
+	color: #b08500;
+}
+
+.knxEquipmentQuickAction-bc .knxWorkspaceActionIcon {
+	color: #2587b5;
+}
+
+.knxProjectDownloadControl {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.knxProjectDownloadFormat {
+	width: 76px;
+	height: 30px;
+	box-sizing: border-box;
+	padding: 0 22px 0 7px;
+	border: 1px solid #c9d0d8;
+	border-radius: 5px;
+	background: #fff;
+	color: #475467;
+	font: 11px Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.knxProjectDownloadFormat:focus {
+	outline: none;
+	border-color: var(--knx-blue);
+	box-shadow: 0 0 0 2px rgba(8, 117, 225, .16);
+}
+
+.knxSaveLocalAction {
+	min-width: 70px;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+
+.knxProjectInfoAction {
+	min-width: 76px;
+}
+
+.knxProjectInfoDialog {
+	box-sizing: border-box;
+	padding: 22px 24px 18px;
+	color: #101828;
+	font: 12px Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.knxProjectInfoDialog h2 {
+	margin: 0 0 18px;
+	font-size: 18px;
+	font-weight: 650;
+}
+
+.knxProjectInfoForm {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 13px 16px;
+}
+
+.knxProjectInfoField {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	color: #344054;
+	font-weight: 600;
+}
+
+.knxProjectInfoField input,
+.knxProjectInfoField textarea {
+	box-sizing: border-box;
+	width: 100%;
+	border: 1px solid #c9d0d8;
+	border-radius: 5px;
+	background: #fff;
+	color: #101828;
+	font: 12px Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.knxProjectInfoField input {
+	height: 34px;
+	padding: 0 9px;
+}
+
+.knxProjectInfoField input[readonly] {
+	background: #f2f4f7;
+	color: #667085;
+}
+
+.knxProjectInfoField textarea {
+	min-height: 66px;
+	padding: 8px 9px;
+	resize: vertical;
+}
+
+.knxProjectInfoField input:focus,
+.knxProjectInfoField textarea:focus {
+	outline: none;
+	border-color: var(--knx-blue);
+	box-shadow: 0 0 0 2px rgba(8, 117, 225, .16);
+}
+
+.knxProjectInfoNotes {
+	grid-column: 1 / -1;
+}
+
+.knxProjectInfoButtons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 18px;
 }
 
 .knxEquipmentTypeSelect {
@@ -430,25 +647,249 @@
 	flex: 1;
 }
 
-@media (max-width: 1180px) {
+.knxMobileNav,
+.knxMobileBackdrop {
+	display: none;
+}
+
+@media (max-width: 1179px) {
 	.knxWorkspace {
-		--knx-left-width: 260px;
-		--knx-right-width: 270px;
+		--knx-header-height: 64px;
+		--knx-status-height: 30px;
+		--knx-mobile-nav-height: 58px;
+	}
+
+	.knxWorkspaceHeader {
+		z-index: 50;
 	}
 
 	.knxWorkspaceBrand {
-		gap: 10px;
-		padding: 0 14px;
+		flex: 0 0 140px;
+		width: 140px;
+		gap: 8px;
+		padding: 0 10px;
+	}
+
+	.knxWorkspaceKnxMemberLogo,
+	.knxWorkspaceBrandDivider {
+		display: none;
+	}
+
+	.knxWorkspaceLumiLogo {
+		width: 28px;
+		height: 28px;
+	}
+
+	.knxWorkspaceTitle {
+		font-size: 13px;
+	}
+
+	.knxWorkspaceActions {
+		justify-content: flex-start;
+		overflow-x: auto;
+		overflow-y: hidden;
+		overscroll-behavior-x: contain;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.knxWorkspaceActions::-webkit-scrollbar {
+		display: none;
+	}
+
+	.knxWorkspaceActions:has(.knxFileMenuOpen) {
+		overflow: visible;
+	}
+
+	.knxWorkspaceViews {
+		display: none;
 	}
 
 	.knxWorkspaceAction {
-		min-width: 62px;
+		flex: 0 0 auto;
+		min-width: 60px;
 		padding-left: 7px;
 		padding-right: 7px;
+		touch-action: manipulation;
 	}
 
-	.knxWorkspaceActions .knxWorkspaceDisabled {
+	.knxWorkspaceAction.knxEquipmentQuickAction {
+		min-width: 50px;
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+
+	.knxEquipmentTypeSelect {
+		width: 138px;
+		height: 40px;
+		font-size: 16px;
+	}
+
+	.knxProjectDownloadFormat {
+		width: 118px;
+		height: 40px;
+		font-size: 12px;
+	}
+
+	.knxFileMenu {
+		position: fixed;
+		top: calc(var(--knx-header-height) - 2px);
+		left: 8px;
+		max-height: calc(100vh - var(--knx-header-height) - var(--knx-mobile-nav-height) - 16px);
+		overflow-y: auto;
+	}
+
+	.knxFileMenuItem {
+		height: 44px;
+		font-size: 14px;
+	}
+
+	.knxWorkspace > .geDiagramContainer {
+		left: 0 !important;
+		right: 0 !important;
+		bottom: calc(var(--knx-status-height) + var(--knx-mobile-nav-height)) !important;
+	}
+
+	.knxWorkspace > .geSidebarContainer:not(.geFormatContainer),
+	.knxWorkspace > .geFormatContainer {
+		z-index: 40;
+		top: var(--knx-header-height) !important;
+		bottom: calc(var(--knx-status-height) + var(--knx-mobile-nav-height)) !important;
+		width: min(86vw, 360px) !important;
+		box-shadow: 0 12px 32px rgba(16, 24, 40, .22) !important;
+		transition: transform .2s ease;
+		will-change: transform;
+	}
+
+	.knxWorkspace > .geSidebarContainer:not(.geFormatContainer) {
+		transform: translateX(-105%);
+	}
+
+	.knxWorkspace > .geFormatContainer {
+		transform: translateX(105%);
+	}
+
+	.knxWorkspace.knxMobileProjectOpen > .geSidebarContainer:not(.geFormatContainer),
+	.knxWorkspace.knxMobilePropertiesOpen > .geFormatContainer {
+		transform: translateX(0);
+	}
+
+	.knxMobileBackdrop {
+		position: absolute;
+		z-index: 35;
+		top: var(--knx-header-height);
+		left: 0;
+		right: 0;
+		bottom: calc(var(--knx-status-height) + var(--knx-mobile-nav-height));
+		padding: 0;
+		border: 0;
+		background: rgba(15, 23, 42, .28);
+	}
+
+	.knxMobileProjectOpen > .knxMobileBackdrop,
+	.knxMobilePropertiesOpen > .knxMobileBackdrop {
+		display: block;
+	}
+
+	.knxMobileNav {
+		position: absolute;
+		z-index: 45;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: var(--knx-mobile-nav-height);
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		padding-bottom: env(safe-area-inset-bottom, 0);
+		border-top: 1px solid var(--knx-border);
+		background: rgba(255, 255, 255, .98);
+	}
+
+	.knxMobileNavButton {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 3px;
+		min-width: 0;
+		border: 0;
+		background: transparent;
+		color: #667085;
+		font: 11px Inter, "Segoe UI", Arial, sans-serif;
+		touch-action: manipulation;
+	}
+
+	.knxMobileNavButton > span:first-child {
+		font-size: 20px;
+		line-height: 22px;
+	}
+
+	.knxMobileNavButton:active,
+	.knxMobileNavActive {
+		background: #eaf2ff;
+		color: var(--knx-blue);
+	}
+
+	.knxCanvasTools {
+		bottom: calc(var(--knx-status-height) + var(--knx-mobile-nav-height) + 10px);
+		left: 10px;
+		max-width: calc(100vw - 20px);
+		overflow-x: auto;
+	}
+
+	.knxCanvasTools .knxCanvasTool {
+		min-width: 42px;
+		height: 38px;
+		touch-action: manipulation;
+	}
+
+	.knxWorkspaceStatus {
+		bottom: var(--knx-mobile-nav-height);
+		gap: 10px;
+		padding: 0 10px;
+	}
+
+	.knxWorkspaceStatus > span:nth-child(2),
+	.knxWorkspaceStatus > span:nth-child(3),
+	.knxWorkspaceStatus > span:nth-child(4) {
 		display: none;
+	}
+
+	.knxWorkspace .knxTreeRow {
+		min-height: 44px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		font-size: 14px;
+		touch-action: manipulation;
+	}
+
+	.knxWorkspaceSearch {
+		height: 44px;
+	}
+
+	.knxWorkspaceSearch input,
+	.knxWorkspace .knxPropertyPanel input,
+	.knxWorkspace .knxPropertyPanel select,
+	.knxWorkspace .knxPropertyPanel textarea {
+		min-height: 44px;
+		font-size: 16px !important;
+	}
+
+	.knxProjectInfoDialog {
+		max-height: calc(100vh - 24px);
+		overflow-y: auto;
+	}
+
+	.knxProjectInfoForm {
+		grid-template-columns: 1fr;
+	}
+
+	.knxProjectInfoNotes {
+		grid-column: 1;
+	}
+
+	.geDialog {
+		max-width: calc(100vw - 24px) !important;
 	}
 }
 .knxDevicePlacementPreview {

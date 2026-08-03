@@ -20,7 +20,8 @@ build-portable.bat
 
 The batch script:
 
-1. prevents concurrent portable builds with a build lock;
+1. detects Java and Ant from environment variables, PATH, sibling tooling or the
+   `%TEMP%\knx-build-tools` cache, then prevents concurrent builds with a lock;
 2. runs the three KNX regression suites and validates the Electron entry point;
 3. rebuilds the production draw.io bundles with Ant;
 4. installs locked Electron dependencies when required;
@@ -31,6 +32,13 @@ The output is written to:
 ```text
 desktop/dist/KNX-Topology-<version>-Portable-x64.zip
 ```
+
+Run `build-portable.bat --check-tools` to verify Java and Ant discovery without
+starting tests or packaging.
+
+The Windows executable, Explorer entry, taskbar and Alt+Tab window use the
+multi-size Lumi icon at `desktop/assets/icon.ico`. The build's desktop configuration
+test requires 16, 24, 32, 48, 64, 128 and 256 px ICO layers before packaging.
 
 `desktop/node_modules/` and `desktop/dist/` are generated artifacts and are not
 source. Commit `desktop/package-lock.json` so future builds use the same toolchain.

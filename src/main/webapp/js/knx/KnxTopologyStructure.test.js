@@ -9,11 +9,19 @@ const areaLayoutSource = fs.readFileSync(path.join(__dirname,
 	'KnxAreaLayout.js'), 'utf8');
 const workspaceSource = fs.readFileSync(path.join(__dirname,
 	'KnxWorkspace.js'), 'utf8');
+const workspaceCssSource = fs.readFileSync(path.join(__dirname,
+	'KnxWorkspace.css'), 'utf8');
+const indexSource = fs.readFileSync(path.join(__dirname, '..', '..',
+	'index.html'), 'utf8');
 const constantsSource = fs.readFileSync(path.join(__dirname, 'core',
 	'KnxConstants.js'), 'utf8');
 const schemaSource = fs.readFileSync(path.join(__dirname, 'core',
 	'KnxObjectSchema.js'), 'utf8');
 const schema = require('./core/KnxObjectSchema.js');
+const lumiLogo = fs.readFileSync(path.join(__dirname, '..', '..', 'images',
+	'knx', 'logo-lumi.png'));
+const knxMemberLogo = fs.readFileSync(path.join(__dirname, '..', '..', 'images',
+	'knx', 'logo-knx-member.jpg'));
 
 assert.ok(source.includes('KnxTopologyModule.prototype.addAreaStructure'),
 	'Add Area must have one explicit structural workflow');
@@ -122,6 +130,79 @@ assert.ok(workspaceSource.includes('createEquipmentAddControl') &&
 	!workspaceSource.includes("createButton('Add Area'") &&
 	!workspaceSource.includes("createButton('Add Line'"),
 	'The workspace must expose one typed Add Device flow without Add Area or Add Line');
+assert.ok(workspaceSource.includes('createEquipmentQuickActions') &&
+	workspaceSource.includes("{value: 'powerSupply', label: 'Power'") &&
+	workspaceSource.includes("{value: 'lc', label: 'LC'") &&
+	workspaceSource.includes("{value: 'bc', label: 'BC'") &&
+	workspaceSource.includes('workspace.module.addDevice(type.value)') &&
+	workspaceSource.includes("setAttribute('data-knx-device-type', type.value)"),
+	'Power Supply, LC and BC must have direct one-click placement actions');
+assert.ok(workspaceSource.includes('createProjectDownloadControl') &&
+	workspaceSource.includes("{value: 'lukatp', label: '.lukatp'}") &&
+	workspaceSource.includes("{value: 'png', label: 'PNG · No grid'}") &&
+	workspaceSource.includes("{value: 'png-grid', label: 'PNG · Grid'}") &&
+	workspaceSource.includes("{value: 'pdf', label: 'PDF · No grid'}") &&
+	workspaceSource.includes("{value: 'pdf-grid', label: 'PDF · Grid'}") &&
+	workspaceSource.includes('saveProjectToDevice(select.value)') &&
+	workspaceSource.includes('exportProjectPngToDevice') &&
+	workspaceSource.includes('exportProjectPdfToDevice') &&
+	workspaceSource.includes('drawTechnicalGrid') &&
+	workspaceSource.includes("includeGrid ? null : '#ffffff'") &&
+	workspaceSource.includes('@page{size:') &&
+	workspaceSource.includes('createTechnicalDrawingCanvas') &&
+	workspaceSource.includes("this.editorUi.getFileData(true)") &&
+	workspaceSource.includes("this.editorUi.doSaveLocalFile(data, filename, 'application/xml')") &&
+	workspaceSource.includes('file.setModified(false)') &&
+	!workspaceSource.includes("doSaveLocalFile(data, filename, 'text/xml')") &&
+	workspaceSource.includes("createButton('Download'") &&
+	!workspaceSource.includes("runEditorAction('save')"),
+	'KNX Download must offer editable LUKA topology and framed grid/no-grid PNG/PDF without a cloud provider');
+assert.ok(workspaceSource.includes('createMobileControls') &&
+	workspaceSource.includes("workspace.toggleMobilePanel('project')") &&
+	workspaceSource.includes("workspace.toggleMobilePanel('properties')") &&
+	workspaceSource.includes("addButton('Canvas'") &&
+	workspaceCssSource.includes('@media (max-width: 1179px)') &&
+	workspaceCssSource.includes('.knxMobileNav') &&
+	workspaceCssSource.includes('left: 0 !important;') &&
+	workspaceCssSource.includes('width: min(86vw, 360px) !important;') &&
+	workspaceCssSource.includes('min-height: 44px;'),
+	'Mobile/iPad layout must use full-width Canvas, overlay panels and touch targets below the desktop breakpoint');
+assert.ok(workspaceSource.includes('showProjectInfoDialog') &&
+	workspaceSource.includes('createFileMenuControl') &&
+	workspaceSource.includes("{label: 'New Project'") &&
+	workspaceSource.includes("{label: 'Open Project...'") &&
+	workspaceSource.includes("{label: 'Import Drawing...'") &&
+	workspaceSource.includes("{label: 'Save Project (.lukatp)'") &&
+	workspaceSource.includes("input.accept = '.lukatp,.drawio,.xml,application/xml,text/xml'") &&
+	workspaceSource.includes('ui.isCompatibleString(data)') &&
+	workspaceSource.includes('ui.fileLoaded(new LocalFile') &&
+	workspaceSource.includes('ui.importFiles([file]') &&
+	workspaceSource.includes('var metadata = this.getProjectMetadata()') &&
+	workspaceSource.includes('this.setProjectMetadata(metadata)') &&
+	workspaceSource.includes('confirmDiscardChanges') &&
+	workspaceSource.includes("createButton('Project Info'") &&
+	workspaceSource.includes("projectName: 'knxProjectName'") &&
+	workspaceSource.includes("designer: 'knxDesigner'") &&
+	workspaceSource.includes("designDate: 'knxDesignDate'") &&
+	workspaceSource.includes('this.module.getEquipmentCells().length') &&
+	workspaceSource.includes("writeCell('Rev / Equipment'") &&
+	workspaceSource.includes('file.setModified(true)'),
+	'Design information must persist in the project and File import must preserve it');
+assert.ok(workspaceSource.includes("lumi: 'images/knx/logo-lumi.png'") &&
+	workspaceSource.includes("knxMember: 'images/knx/logo-knx-member.jpg'") &&
+	workspaceSource.includes('drawContainedImage') &&
+	lumiLogo.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) &&
+	knxMemberLogo[0] == 255 && knxMemberLogo[1] == 216 &&
+	!workspaceSource.includes('logo-knx-partner'),
+	'Lumi PNG and KNX Member JPEG must be valid assets rendered in the technical title block');
+assert.ok(indexSource.includes('<title>Lumi KNX Topology</title>') &&
+	indexSource.includes('rel="icon" type="image/png" href="images/knx/logo-lumi.png') &&
+	workspaceSource.includes('class="knxWorkspaceLumiLogo"') &&
+	workspaceSource.includes('class="knxWorkspaceKnxMemberLogo"') &&
+	workspaceSource.includes('alt="KNX Member"') &&
+	workspaceSource.includes("this.editorUi.editor.appName = 'Lumi KNX Topology'") &&
+	workspaceSource.includes('this.editorUi.updateDocumentTitle()'),
+	'Lumi favicon and Lumi/KNX Member header branding must be visible in the webapp');
 assert.ok(workspaceSource.includes("attributeFilter: ['data-wire-mode']") &&
 	workspaceSource.includes("classList.toggle('knxWorkspaceActionActive', active)") &&
 	workspaceSource.includes("setAttribute('aria-pressed', active ? 'true' : 'false')"),

@@ -107,3 +107,60 @@ retaining its green style and stable endpoint requirements.
   launch avoids the single-file NSIS temporary extraction delay.
 - Public release signing remains disabled until a valid Authenticode signing
   identity is configured; an unsigned build must be reported explicitly.
+
+## DR-2026-08-04-01 — System-equipment quick add
+
+- Keep the typed Add Device selector as the complete equipment creation entry point.
+- Power Supply, LC and BC also have dedicated compact toolbar actions because they
+  are frequently added as system equipment.
+- A quick action starts the same manual placement preview with a fixed equipment
+  type; it does not auto-place, auto-wire or create topology containers.
+
+## DR-2026-08-04-02 — Local-first KNX save
+
+- The KNX workspace Download action offers editable `.lukatp`, local PNG and the
+  browser's print-to-PDF flow.
+- Downloading from the KNX toolbar does not inherit the current draw.io cloud
+  provider and therefore never starts Drive or other provider authorization.
+- The downloaded file is a local snapshot; browser download behaviour determines
+  whether repeated saves overwrite or create numbered copies.
+- `.lukatp` XML downloads use `application/xml` so the inherited draw.io helper
+  preserves the custom extension instead of appending `.drawio`.
+
+## DR-2026-08-04-03 — Technical drawing information and export frame
+
+- Project-level design information is stored as backward-compatible attributes
+  on the `.lukatp` file root; topology cells, addressing and geometry are unchanged.
+- Equipment count is derived at display/export time and is never duplicated as
+  manually editable project data.
+- PNG and PDF share one export-only technical frame and bottom-right title block,
+  so editing geometry on the Canvas remains untouched.
+- PDF uses a single CSS custom-size print page proportional to the framed drawing,
+  capped at 420 mm on its longest edge for browser compatibility; A4 is not forced.
+- The supplied Lumi and KNX Member brand assets are packaged with the webapp and
+  rendered aspect-fit inside a dedicated title-block logo cell.
+- Lumi also owns the browser favicon/application title; Lumi and KNX Member are
+  rendered as aspect-fit images in the workspace header instead of synthetic text.
+
+## DR-2026-08-04-04 — Local project File menu
+
+- The KNX header exposes a local-first File menu for New Project, Open Project,
+  Import Drawing, Save Project and the existing technical exports.
+- New Project and Open Project replace the active local file only after confirming
+  the loss of unsaved changes. Invalid project XML is rejected before replacement.
+- Open Project adopts the opened file's Project Info. Import Drawing inserts cells
+  into the active graph, keeps the active Project Info and remains one import edit.
+- File operations use browser/local `LocalFile` paths and do not invoke cloud
+  providers or authorization dialogs.
+- Save Project updates the current local file snapshot and clears its modified
+  state; later graph or Project Info edits mark it modified again.
+
+## DR-2026-08-04-05 — Export grid and isolated mobile workspace
+
+- PNG and PDF expose explicit Grid and No grid export variants. The export grid
+  is composed behind drawing content and is not serialized into the KNX project.
+- Desktop keeps its established three-column engineering layout at `1180px` and
+  wider, matching the portable application's minimum window width.
+- Narrow web viewports use a full-width Canvas plus overlay Project/Properties
+  panels and bottom navigation. These rules live only below the desktop breakpoint
+  and therefore cannot alter the PC layout.

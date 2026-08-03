@@ -4,11 +4,46 @@
 
 - Preserve the desktop engineering layout: Project Tree, Canvas, Properties,
   command toolbar and status bar.
+- Browser favicon and application title use Lumi branding. The workspace header
+  visibly presents the Lumi and KNX Member logos before the KNX Topology title.
 - The topology toolbar exposes one Add Device control with a visible equipment
   type selector for Device, LC, BC, Line Repeater and KNX Power Supply.
+- Power Supply, LC and BC also expose compact quick-add actions. Each action
+  immediately starts the existing manual placement preview for its fixed type.
 - Add Area and Add Line are not shown in the active toolbar or Project Tree.
 - Commands must have visible UI entry points even when a keyboard shortcut exists.
 - Disabled and unavailable commands remain distinguishable from active ones.
+- File provides local New Project, Open Project, Import Drawing and Save/Export
+  commands. New/Open replace the active project after warning about unsaved work;
+  Import Drawing inserts the selected diagram into the current Canvas and keeps
+  the current Project Info unchanged.
+- Download offers editable `.lukatp`, PNG and PDF formats without invoking authorization
+  for a cloud provider. LUKA Topology and PNG download directly; PDF opens the
+  local print dialog where the user can choose Save as PDF.
+- Editable project downloads end exactly in `.lukatp`; the underlying draw.io
+  XML helper must not append `.drawio` or `.xml` to the custom filename.
+- A successful Save Project download becomes the current saved snapshot, so a
+  following New/Open action does not warn unless newer edits exist.
+- Project Info persists project name, drawing title, designer, design date,
+  project code, revision and notes in the editable project. Equipment count is
+  derived automatically from the active topology.
+- PNG and PDF render a technical border plus a bottom-right title block containing
+  Project Info and equipment count. PDF uses one content-proportional custom page,
+  not a fixed A4 page.
+- PNG and PDF each offer explicit Grid and No grid variants. Grid is export-only,
+  stays inside the drawing region and never modifies Canvas or project geometry.
+- The technical title block includes the supplied Lumi and KNX Member logos in a
+  dedicated logo cell. Each logo preserves its source aspect ratio.
+
+## Mobile and tablet
+
+- The desktop layout remains unchanged at `1180px` and wider.
+- Below `1180px`, Canvas uses the available width while Project Tree and Properties
+  become mutually exclusive overlay panels opened from a bottom navigation bar.
+- Mobile controls use touch targets of at least `44px`; toolbar actions remain
+  horizontally reachable without removing desktop commands.
+- Selecting a Project Tree row returns to Canvas. Properties stays open while the
+  user edits fields, and Canvas closes either overlay explicitly.
 
 ## Selection and editing
 

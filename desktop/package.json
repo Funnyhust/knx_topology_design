@@ -20,11 +20,13 @@
     "compression": "normal",
     "forceCodeSigning": false,
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "assets"
     },
     "files": [
       "main.js",
-      "package.json"
+      "package.json",
+      "assets/icon.ico"
     ],
     "extraResources": [
       {
@@ -38,6 +40,7 @@
       }
     ],
     "win": {
+      "icon": "assets/icon.ico",
       "target": [
         {
           "target": "zip",
