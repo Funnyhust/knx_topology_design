@@ -1,0 +1,52 @@
+{
+  "name": "knx-topology-desktop",
+  "version": "0.1.1",
+  "description": "Portable Windows desktop wrapper for KNX Topology",
+  "author": "KNX Topology Team",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:portable": "electron-builder --win zip --x64"
+  },
+  "devDependencies": {
+    "electron": "43.2.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "vn.knx.topology",
+    "productName": "KNX Topology",
+    "asar": true,
+    "compression": "normal",
+    "forceCodeSigning": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../src/main/webapp",
+        "to": "webapp",
+        "filter": [
+          "**/*",
+          "!WEB-INF{,/**/*}",
+          "!META-INF{,/**/*}"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "KNX-Topology-${version}-Portable-x64.${ext}"
+    }
+  }
+}
