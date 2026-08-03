@@ -138,8 +138,27 @@ async function createWindow(port)
 		}
 	});
 
-	mainWindow.webContents.setWindowOpenHandler(({url}) =>
+	mainWindow.webContents.setWindowOpenHandler(({url, frameName}) =>
 	{
+		if ((url === 'about:blank' || url === '') &&
+			frameName === 'knx-technical-pdf')
+		{
+			return {
+				action: 'allow',
+				overrideBrowserWindowOptions: {
+					width: 1000,
+					height: 760,
+					backgroundColor: '#ffffff',
+					icon: APP_ICON,
+					webPreferences: {
+						contextIsolation: true,
+						nodeIntegration: false,
+						sandbox: true
+					}
+				}
+			};
+		}
+
 		if (/^https?:\/\//i.test(url))
 		{
 			shell.openExternal(url);
@@ -178,6 +197,15 @@ async function createWindow(port)
 			{
 				await new Promise((resolve) => setTimeout(resolve, 250));
 			}
+		}
+
+		if (ready)
+		{
+			ready = await mainWindow.webContents.executeJavaScript(
+				"new Promise(function(done){var popup=window.open(''," +
+				"'knx-technical-pdf');setTimeout(function(){var opened=popup!=null;" +
+				"if(popup!=null)popup.close();done(opened)},150)})");
+			console.log('KNX_PDF_POPUP_SMOKE', ready ? 'OK' : 'FAILED');
 		}
 
 		if (ready)

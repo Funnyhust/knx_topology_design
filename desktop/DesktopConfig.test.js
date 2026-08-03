@@ -18,6 +18,12 @@ assert.ok(mainSource.includes("const APP_ICON = path.join(__dirname, 'assets', '
 	mainSource.includes('icon: APP_ICON') &&
 	mainSource.includes("app.setAppUserModelId(APP_ID)"),
 	'BrowserWindow and Windows taskbar identity must use the packaged Lumi icon');
+assert.ok(mainSource.includes("frameName === 'knx-technical-pdf'") &&
+	mainSource.includes("url === 'about:blank'") &&
+	mainSource.includes("action: 'allow'") &&
+	mainSource.includes('overrideBrowserWindowOptions') &&
+	mainSource.includes("return {action: 'deny'}"),
+	'Electron must allow only the internal technical PDF popup and keep other popups denied');
 
 assert.strictEqual(icon.readUInt16LE(0), 0, 'ICO reserved field must be zero');
 assert.strictEqual(icon.readUInt16LE(2), 1, 'ICO must contain icon images');

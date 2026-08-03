@@ -10,6 +10,11 @@ webapp. It does not duplicate or replace KNX domain, UI or mxGraph logic.
 disabled Node integration and sandboxing. External navigation is denied in the
 application window.
 
+The shell permits one tightly scoped popup: an `about:blank` window named
+`knx-technical-pdf`, used to compose the local technical drawing and open the
+native Print/Save as PDF dialog. Node integration remains disabled and sandboxing
+remains enabled in that child window; all other popups stay denied.
+
 ## Build command
 
 From the repository root, run:
@@ -47,7 +52,9 @@ source. Commit `desktop/package-lock.json` so future builds use the same toolcha
 
 After extracting the ZIP, `KNX Topology.exe` accepts `--smoke-test`. In that mode
 it waits up to 30 seconds for the KNX equipment selector and Canvas, then exits
-with code `0` on success or `2` if the KNX UI did not initialize.
+with code `0` on success or `2` if the KNX UI did not initialize. The smoke suite
+also verifies that the named internal PDF popup opens while unrelated popups remain
+blocked by the shell policy.
 
 The ZIP must be extracted once before use. The application then starts directly
 from that folder and avoids the long per-launch temporary extraction performed

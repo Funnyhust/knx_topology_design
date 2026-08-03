@@ -94,6 +94,9 @@
 
 - `DesktopConfig.test.js` requires the packaged Lumi ICO, electron-builder icon,
   BrowserWindow icon, Windows AppUserModelID and all seven Windows icon sizes.
+- Electron allows only the sandboxed `about:blank` popup named
+  `knx-technical-pdf`, so PDF export reaches Print/Save as PDF without allowing
+  arbitrary application popups.
 - `build-portable.bat` must stop when a KNX regression suite, Ant or packaging fails.
 - Only one portable build may own the shared Ant temporary directory at a time.
 - Extract the portable ZIP, run `KNX Topology.exe --smoke-test` and require exit code `0`.
