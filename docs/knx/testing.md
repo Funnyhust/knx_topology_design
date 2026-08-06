@@ -27,6 +27,8 @@
 
 - Browser title/favicon use Lumi branding, and the workspace header loads visible
   Lumi and KNX Member images without changing toolbar or sidebar bounds.
+- The pre-workspace loading splash presents Lumi KNX Topology branding and no
+  draw.io/flowchart marketing text.
 - Tree, Canvas and Properties selection remain synchronized.
 - Name, IA/Power Supply Line address, Manufacturer, Order Number, Application Name
   and Room redraw live.

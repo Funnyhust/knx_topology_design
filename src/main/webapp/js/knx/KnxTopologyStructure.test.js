@@ -204,6 +204,10 @@ assert.ok(workspaceSource.includes("lumi: 'images/knx/logo-lumi.png'") &&
 	'Lumi PNG and KNX Member JPEG must be valid assets rendered in the technical title block');
 assert.ok(indexSource.includes('<title>Lumi KNX Topology</title>') &&
 	indexSource.includes('rel="icon" type="image/png" href="images/knx/logo-lumi.png') &&
+	indexSource.includes('class="knxStartupSplash"') &&
+	indexSource.includes('LUMI KNX Topology') &&
+	!indexSource.includes('Flowchart Maker and Online Diagram Software') &&
+	!indexSource.includes('draw.io is free online diagram software') &&
 	workspaceSource.includes('class="knxWorkspaceLumiLogo"') &&
 	workspaceSource.includes('class="knxWorkspaceKnxMemberLogo"') &&
 	workspaceSource.includes('alt="KNX Member"') &&

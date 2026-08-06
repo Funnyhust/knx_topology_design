@@ -6,6 +6,8 @@
   command toolbar and status bar.
 - Browser favicon and application title use Lumi branding. The workspace header
   visibly presents the Lumi and KNX Member logos before the KNX Topology title.
+- Before the workspace initializes, the loading splash uses Lumi KNX Topology
+  branding and contains no draw.io product or flowchart-marketing text.
 - The topology toolbar exposes one Add Device control with a visible equipment
   type selector for Device, LC, BC, Line Repeater and KNX Power Supply.
 - Power Supply, LC and BC also expose compact quick-add actions. Each action

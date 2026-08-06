@@ -29,7 +29,7 @@ var MANIFEST = [
   {"url":"js/math-print.js","revision":"ad9cf0f2f2b614eac58ea72499c1017f"},
   {"url":"images/knx/logo-lumi.png","revision":"01d56b45f1961262113219d6f4ee1332"},
   {"url":"images/knx/logo-knx-member.jpg","revision":"9e682215b28dae0323afff3f7352f146"},
-  {"url":"index.html","revision":"e6b8cf2551bd1d2baa246ece7ac531c0-30.3.11"},
+  {"url":"index.html","revision":"7284fdc5408f045040ef60c10f4792d9-30.3.11"},
   {"url":"open.html","revision":"d71816b3b00e769fc6019fcdd6921662-30.3.11"},
   {"url":"shortcuts.svg","revision":"2381dd779ce6cfee954042a7f784c7e6"},
   {"url":"styles/fonts/ArchitectsDaughter-Regular.ttf","revision":"31c2153c0530e32553b31a49b3d70736"},
