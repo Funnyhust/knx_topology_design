@@ -1006,9 +1006,7 @@
 		brand.innerHTML = '<span class="knxWorkspaceBrandMarks">' +
 			'<img class="knxWorkspaceLumiLogo" src="images/knx/logo-lumi.png" alt="Lumi">' +
 			'<img class="knxWorkspaceKnxMemberLogo" src="images/knx/logo-knx-member.jpg" ' +
-			'alt="KNX Member"></span>' +
-			'<span class="knxWorkspaceBrandDivider"></span>' +
-			'<span class="knxWorkspaceTitle">KNX Topology</span>';
+			'alt="KNX Member"></span>';
 		header.appendChild(brand);
 
 		var actions = document.createElement('nav');

@@ -5,7 +5,8 @@
 - Preserve the desktop engineering layout: Project Tree, Canvas, Properties,
   command toolbar and status bar.
 - Browser favicon and application title use Lumi branding. The workspace header
-  visibly presents the Lumi and KNX Member logos before the KNX Topology title.
+  visibly presents only the Lumi and KNX Member logos, so the brand region fits
+  within the sidebar at its minimum desktop width.
 - Before the workspace initializes, the loading splash uses Lumi KNX Topology
   branding and contains no draw.io product or flowchart-marketing text.
 - The topology toolbar exposes one Add Device control with a visible equipment

@@ -211,9 +211,10 @@ assert.ok(indexSource.includes('<title>Lumi KNX Topology</title>') &&
 	workspaceSource.includes('class="knxWorkspaceLumiLogo"') &&
 	workspaceSource.includes('class="knxWorkspaceKnxMemberLogo"') &&
 	workspaceSource.includes('alt="KNX Member"') &&
+	!workspaceSource.includes('class="knxWorkspaceTitle"') &&
 	workspaceSource.includes("this.editorUi.editor.appName = 'Lumi KNX Topology'") &&
 	workspaceSource.includes('this.editorUi.updateDocumentTitle()'),
-	'Lumi favicon and Lumi/KNX Member header branding must be visible in the webapp');
+	'Lumi favicon and compact Lumi/KNX Member header branding must be visible in the webapp');
 assert.ok(workspaceSource.includes("attributeFilter: ['data-wire-mode']") &&
 	workspaceSource.includes("classList.toggle('knxWorkspaceActionActive', active)") &&
 	workspaceSource.includes("setAttribute('aria-pressed', active ? 'true' : 'false')"),

@@ -129,18 +129,6 @@
 	background: #fff;
 }
 
-.knxWorkspaceBrandDivider {
-	height: 30px;
-	width: 1px;
-	background: var(--knx-border);
-}
-
-.knxWorkspaceTitle {
-	font-size: 15px;
-	font-weight: 650;
-	white-space: nowrap;
-}
-
 .knxWorkspaceActions,
 .knxWorkspaceViews {
 	display: flex;
@@ -724,21 +712,16 @@
 		padding: 0 10px;
 	}
 
-	.knxWorkspaceKnxMemberLogo,
-	.knxWorkspaceBrandDivider {
-		display: none;
-	}
+.knxWorkspaceKnxMemberLogo {
+	display: none;
+}
 
 	.knxWorkspaceLumiLogo {
 		width: 28px;
 		height: 28px;
 	}
 
-	.knxWorkspaceTitle {
-		font-size: 13px;
-	}
-
-	.knxWorkspaceActions {
+.knxWorkspaceActions {
 		justify-content: flex-start;
 		overflow-x: auto;
 		overflow-y: hidden;
