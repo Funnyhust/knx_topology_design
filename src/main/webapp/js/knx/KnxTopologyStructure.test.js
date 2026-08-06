@@ -300,8 +300,9 @@ assert.ok(source.includes('var width = KnxTopologyModule.DEVICE_WIDTH') &&
 assert.ok(source.includes('font-size:15px') &&
 	source.includes('font-size:14px') && source.includes('font-size:10px') &&
 	source.includes('width:12px;flex:none;background:') &&
+	source.includes('color:#30343b;background:transparent;') &&
 	source.includes('gap:7px') && source.includes('width:70px;flex:none'),
-	'Equipment cards must prioritize Name and IA over secondary metadata');
+	'Equipment cards must prioritize Name and IA over secondary metadata without covering their frame');
 assert.ok(source.includes("this.getCells('device').concat(this.getCells('coupler'))") &&
 	areaLayoutSource.includes('deviceCardWidth: constants.EQUIPMENT_CARD_WIDTH') &&
 	areaLayoutSource.includes('deviceCardHeight: constants.EQUIPMENT_CARD_HEIGHT') &&

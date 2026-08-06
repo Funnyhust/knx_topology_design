@@ -2311,7 +2311,7 @@
 		}
 
 		return '<div style="box-sizing:border-box;width:100%;height:100%;display:flex;' +
-			'font-family:&quot;Segoe UI&quot;,Arial,sans-serif;color:#30343b;background:#fff;' +
+			'font-family:&quot;Segoe UI&quot;,Arial,sans-serif;color:#30343b;background:transparent;' +
 			'overflow:hidden" title="' +
 			esc(fullDetails.join(' | ')) + '">' +
 			'<div style="width:12px;flex:none;background:' + stripColor + '"></div>' +
