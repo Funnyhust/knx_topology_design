@@ -284,6 +284,18 @@ App.GOOGLE_APIS = 'drive-share';
 App.startTime = new Date();
 
 /**
+ * Returns true for syntax errors raised by dynamically evaluated third-party
+ * content. The editor guards its own eval paths, so these errors must not
+ * interrupt a locally initialized workspace with a blocking dialog.
+ */
+App.isIgnoredDynamicSyntaxError = function(message)
+{
+	return typeof message == 'string' &&
+		(message.indexOf('Invalid or unexpected token') >= 0 ||
+		message.indexOf('Invalid Unicode escape sequence') >= 0);
+};
+
+/**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://www.drawio.com/doc/faq/supported-url-parameters
  */
@@ -660,6 +672,11 @@ App.main = function(callback, createUi)
 		// Handles uncaught errors before the app is loaded
 		window.onerror = function(message, url, linenumber, colno, err)
 		{
+			if (App.isIgnoredDynamicSyntaxError(message))
+			{
+				return true;
+			}
+
 			EditorUi.logError('Global: ' + ((message != null) ? message : ''),
 				url, linenumber, colno, err, null, true);
 			
@@ -3204,18 +3221,17 @@ App.prototype.start = function()
 			// Ignores Grammarly error [1344]
 			if (message != 'ResizeObserver loop limit exceeded')
 			{
-				// "Invalid or unexpected token" is a JS engine parse error that can only
-				// come from eval() or new Function(). All eval() calls in the codebase are
-				// wrapped in try/catch, so this reaching window.onerror indicates external
-				// interference (browser extensions, corrupted cache, proxy injection).
-				if (message == null || message.indexOf('Invalid or unexpected token') < 0)
+				// Dynamic syntax errors are parsed only when external or cached content
+				// reaches eval() or new Function(). All editor-owned eval() calls are
+				// wrapped in try/catch, so this indicates browser extension, cache or
+				// proxy interference and must not interrupt the initialized workspace.
+				if (!App.isIgnoredDynamicSyntaxError(message))
 				{
 					EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
 						url, linenumber, colno, err, null, true);
+					ui.handleError({message: message}, mxResources.get('unknownError'),
+						null, null, null, null, true);
 				}
-
-				ui.handleError({message: message}, mxResources.get('unknownError'),
-					null, null, null, null, true);
 			}
 		};
 		

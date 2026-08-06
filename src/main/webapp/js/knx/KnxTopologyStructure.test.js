@@ -11,6 +11,8 @@ const workspaceSource = fs.readFileSync(path.join(__dirname,
 	'KnxWorkspace.js'), 'utf8');
 const workspaceCssSource = fs.readFileSync(path.join(__dirname,
 	'KnxWorkspace.css'), 'utf8');
+const appSource = fs.readFileSync(path.join(__dirname, '..', 'diagramly',
+	'App.js'), 'utf8');
 const indexSource = fs.readFileSync(path.join(__dirname, '..', '..',
 	'index.html'), 'utf8');
 const constantsSource = fs.readFileSync(path.join(__dirname, 'core',
@@ -215,6 +217,11 @@ assert.ok(indexSource.includes('<title>Lumi KNX Topology</title>') &&
 	workspaceSource.includes("this.editorUi.editor.appName = 'Lumi KNX Topology'") &&
 	workspaceSource.includes('this.editorUi.updateDocumentTitle()'),
 	'Lumi favicon and compact Lumi/KNX Member header branding must be visible in the webapp');
+assert.ok(appSource.includes('App.isIgnoredDynamicSyntaxError') &&
+	appSource.includes('Invalid Unicode escape sequence') &&
+	appSource.includes('return true;') &&
+	appSource.includes('if (!App.isIgnoredDynamicSyntaxError(message))'),
+	'Dynamic Unicode syntax errors must not show a blocking startup dialog');
 assert.ok(workspaceSource.includes("attributeFilter: ['data-wire-mode']") &&
 	workspaceSource.includes("classList.toggle('knxWorkspaceActionActive', active)") &&
 	workspaceSource.includes("setAttribute('aria-pressed', active ? 'true' : 'false')"),
