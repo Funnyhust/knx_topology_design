@@ -387,7 +387,10 @@ else
 
 	app.whenReady().then(async () =>
 	{
-		app.setAppUserModelId(APP_ID);
+		if (process.platform === 'win32')
+		{
+			app.setAppUserModelId(APP_ID);
+		}
 		Menu.setApplicationMenu(process.platform === 'darwin' ?
 			Menu.buildFromTemplate([
 				{role: 'appMenu'},
