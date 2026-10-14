@@ -1,0 +1,67 @@
+name: KNX macOS ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'build/mac-zip-*'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: macOS ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+            output: mac-arm64
+          - runner: macos-15-intel
+            arch: x64
+            output: mac
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - name: Install locked desktop dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Check existing runtime and KNX contracts
+        run: |
+          node --check desktop/main.js
+          node desktop/DesktopConfig.test.js
+          node src/main/webapp/js/knx/KnxLayoutFoundation.test.js
+          node src/main/webapp/js/knx/KnxAreaLayout.test.js
+          node src/main/webapp/js/knx/KnxTopologyStructure.test.js
+          test -s src/main/webapp/js/app.min.js
+          test -s src/main/webapp/service-worker.js
+      - name: Package existing production webapp
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --mac zip --${{ matrix.arch }} --publish never
+      - name: Verify bundle signature and start packaged app
+        env:
+          APP_PATH: desktop/dist/${{ matrix.output }}/KNX Topology.app
+        run: |
+          codesign --verify --deep --strict "$APP_PATH"
+          "$APP_PATH/Contents/MacOS/KNX Topology" --smoke-test
+      - name: Record checksums
+        working-directory: desktop/dist
+        run: shasum -a 256 KNX-Topology-*-mac-${{ matrix.arch }}.zip > SHA256-${{ matrix.arch }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KNX-Topology-mac-${{ matrix.arch }}
+          path: |
+            desktop/dist/KNX-Topology-*-mac-${{ matrix.arch }}.zip
+            desktop/dist/SHA256-${{ matrix.arch }}.txt
+          if-no-files-found: error
+          retention-days: 14

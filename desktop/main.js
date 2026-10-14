@@ -1,7 +1,14 @@
-const {app, BrowserWindow, Menu, session, shell} = require('electron');
+const {app, BrowserWindow, Menu, session, shell, dialog} = require('electron');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
+const os = require('os');
+
+// Smoke tests create drawings; keep their drafts out of the user's profile.
+if (process.argv.includes('--smoke-test'))
+{
+	app.setPath('userData', fs.mkdtempSync(path.join(os.tmpdir(), 'knx-smoke-')));
+}
 
 const APP_ID = 'vn.knx.topology';
 const APP_ICON = path.join(__dirname, 'assets', 'icon.ico');
@@ -135,6 +142,28 @@ async function createWindow(port)
 			contextIsolation: true,
 			nodeIntegration: false,
 			sandbox: true
+		}
+	});
+
+	// Electron silently cancels close when the webapp returns an unload warning.
+	// Give the user a native choice instead of leaving the window stuck open.
+	mainWindow.webContents.on('will-prevent-unload', (event) =>
+	{
+		const choice = dialog.showMessageBoxSync(mainWindow, {
+			type: 'warning',
+			title: 'Close KNX Topology',
+			message: 'Close the application without saving?',
+			detail: 'Your latest changes may not be saved. Choose Keep editing to save your project first.',
+			buttons: ['Close without saving', 'Keep editing'],
+			defaultId: 1,
+			cancelId: 1,
+			noLink: true
+		});
+
+		if (choice === 0)
+		{
+			// On this event, preventDefault allows unloading despite the warning.
+			event.preventDefault();
 		}
 	});
 
@@ -359,7 +388,12 @@ else
 	app.whenReady().then(async () =>
 	{
 		app.setAppUserModelId(APP_ID);
-		Menu.setApplicationMenu(null);
+		Menu.setApplicationMenu(process.platform === 'darwin' ?
+			Menu.buildFromTemplate([
+				{role: 'appMenu'},
+				{role: 'editMenu'},
+				{role: 'windowMenu'}
+			]) : null);
 		session.defaultSession.setPermissionRequestHandler((webContents,
 			permission, callback) => callback(false));
 

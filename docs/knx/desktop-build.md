@@ -1,5 +1,28 @@
 # KNX Windows Portable Build
 
+## macOS test ZIP
+
+`desktop/package.json` also defines `dist:mac`, which packages ZIPs for Apple
+Silicon (`arm64`) and Intel (`x64`). Run it on macOS with `npm ci` followed by
+`npm run dist:mac` from `desktop/`.
+
+The `KNX macOS ZIP` GitHub Actions workflow runs on macOS runners for both
+architectures. It can run manually from a branch containing the workflow, or
+automatically when a `build/mac-zip-*` branch is pushed. Artifacts contain the
+application ZIP and its SHA-256 checksum. Extract the inner ZIP on the Mac and
+move `KNX Topology.app` to Applications.
+
+These test builds use ad-hoc signing, not an Apple Developer ID certificate or
+notarization. Gatekeeper may require approval in System Settings > Privacy &
+Security after an initial launch attempt. The workflow verifies the signature
+and runs the packaged application's existing smoke checks on each architecture.
+
+Packaging reuses the checked-in production webapp. It does not rebuild the web
+bundle: the current checkout does not contain `etc/build/build.xml`. Frontend
+source changes require restoring that existing Ant build before making a new
+production bundle. Desktop menus expose native macOS Edit commands for Command
+shortcuts.
+
 ## Architecture boundary
 
 The desktop target is a thin Electron shell around the existing production
@@ -50,11 +73,26 @@ source. Commit `desktop/package-lock.json` so future builds use the same toolcha
 
 ## Runtime and smoke verification
 
+Closing a clean window exits normally. If the webapp blocks closing because of
+an unload warning, the Electron shell shows a native confirmation with Close
+without saving and Keep editing. Keep editing (also Escape) is the default;
+Close without saving explicitly permits the window to close.
+
+Run `desktop/node_modules/electron/dist/electron.exe desktop/DesktopClose.test.js`
+from the repository root to exercise clean close, cancelled close and confirmed
+close against real Electron windows. Results are recorded in
+`desktop/dist/close-test.log`; this test uses an isolated temporary profile.
+
 After extracting the ZIP, `KNX Topology.exe` accepts `--smoke-test`. In that mode
 it waits up to 30 seconds for the KNX equipment selector and Canvas, then exits
 with code `0` on success or `2` if the KNX UI did not initialize. The smoke suite
 also verifies that the named internal PDF popup opens while unrelated popups remain
 blocked by the shell policy.
+
+Smoke tests use a fresh temporary Electron user-data directory. Their test
+drawings and recovery drafts never enter the normal application profile at
+`%APPDATA%\knx-topology-desktop`. That profile is local machine data and is not
+included in the portable ZIP.
 
 The ZIP must be extracted once before use. The application then starts directly
 from that folder and avoids the long per-launch temporary extraction performed
