@@ -37,7 +37,7 @@
 			var link = document.createElement('link');
 			link.id = 'knx-workspace-styles';
 			link.rel = 'stylesheet';
-			link.href = 'js/knx/KnxWorkspace.css?v=20260804-40';
+			link.href = 'js/knx/KnxWorkspace.css?v=20261028-01';
 			document.head.appendChild(link);
 		}
 	};
@@ -85,6 +85,193 @@
 		control.appendChild(select);
 		control.appendChild(button);
 		return control;
+	};
+
+	KnxWorkspace.prototype.showLoadLibrary = function()
+	{
+		var workspace = this;
+		var panel = document.createElement('div');
+		panel.className = 'knxDrawingDialog';
+		var title = document.createElement('h3');
+		title.innerText = 'Load icons';
+		panel.appendChild(title);
+		var hint = document.createElement('p');
+		hint.innerText = 'Choose an icon, then click the canvas to place it. Loads have no KNX address.';
+		panel.appendChild(hint);
+		var grid = document.createElement('div');
+		grid.className = 'knxLoadLibrary';
+		KnxObjectSchema.getLoadTypes().forEach(function(type)
+		{
+			var button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'knxLoadTile';
+			button.setAttribute('data-knx-load-type', type.value);
+			var image = document.createElement('img');
+			image.src = KnxObjectSchema.getLoadImage(type.value);
+			image.alt = '';
+			button.appendChild(image);
+			var label = document.createElement('span');
+			label.innerText = type.label;
+			button.appendChild(label);
+			mxEvent.addListener(button, 'click', function()
+			{
+				workspace.editorUi.hideDialog();
+				workspace.setMobilePanel(null);
+				workspace.module.startLoadPlacement(type.value);
+			});
+			grid.appendChild(button);
+		});
+		panel.appendChild(grid);
+		panel.appendChild(this.createButton('Close', '&#215;', function()
+		{
+			workspace.editorUi.hideDialog();
+		}));
+		this.editorUi.showDialog(panel, Math.min(420, window.innerWidth - 48), 330, true, true);
+	};
+
+	KnxWorkspace.prototype.getSelectedManualWires = function()
+	{
+		var graph = this.graph;
+		return graph.getSelectionCells().filter(function(cell)
+		{
+			return cell.edge && mxUtils.getValue(graph.getCellStyle(cell), 'wireMode', '0') == '1';
+		});
+	};
+
+	KnxWorkspace.prototype.createWireEditor = function(cells)
+	{
+		var workspace = this;
+		var graph = this.graph;
+		var style = cells.length > 0 ? graph.getCellStyle(cells[0]) : {};
+		var initial = cells.length > 0 ? {type: style.knxWireType || 'knx',
+			color: style.strokeColor, width: style.strokeWidth} : this.editorUi.knxWireSettings;
+		initial = KnxObjectSchema.normalizeWireSettings(initial);
+		var panel = document.createElement('div');
+		panel.className = 'knxWireEditor';
+		var type = document.createElement('select');
+		type.setAttribute('data-knx-wire-field', 'type');
+		KnxObjectSchema.getWireTypes().forEach(function(item)
+		{
+			var option = document.createElement('option');
+			option.value = item.value;
+			option.innerText = item.label;
+			type.appendChild(option);
+		});
+		type.value = initial.type;
+		var color = document.createElement('input');
+		color.type = 'color';
+		color.setAttribute('data-knx-wire-field', 'color');
+		color.value = initial.color;
+		color.disabled = initial.type == 'knx';
+		var width = document.createElement('input');
+		width.type = 'number';
+		width.min = '0.5';
+		width.max = '12';
+		width.step = '0.5';
+		width.value = initial.width;
+		width.setAttribute('data-knx-wire-field', 'width');
+		[{label: 'Wire type', input: type}, {label: 'Color', input: color},
+			{label: 'Drawing width (px)', input: width}].forEach(function(field)
+		{
+			var label = document.createElement('label');
+			label.className = 'knxPropertyField';
+			var text = document.createElement('span');
+			text.innerText = field.label;
+			label.appendChild(text);
+			label.appendChild(field.input);
+			panel.appendChild(label);
+		});
+		mxEvent.addListener(type, 'change', function()
+		{
+			var preset = KnxObjectSchema.normalizeWireSettings({type: type.value, width: width.value});
+			color.value = preset.color;
+			color.disabled = type.value == 'knx';
+		});
+		var readSettings = function()
+		{
+			return KnxObjectSchema.normalizeWireSettings({type: type.value,
+				color: color.value, width: width.value});
+		};
+		if (cells.length > 0)
+		{
+			panel.appendChild(this.createButton('Apply to selected wires (' + cells.length + ')', '&#10003;', function()
+			{
+				var settings = readSettings();
+				var model = graph.getModel();
+				model.beginUpdate();
+				try
+				{
+					graph.setCellStyles('knxWireType', settings.type, cells);
+					graph.setCellStyles('strokeColor', settings.color, cells);
+					graph.setCellStyles('strokeWidth', String(settings.width), cells);
+				}
+				finally { model.endUpdate(); }
+				workspace.editorUi.editor.setStatus('Selected wires updated.');
+			}));
+		}
+		panel.appendChild(this.createButton('Use for new wires', '&#8594;', function()
+		{
+			workspace.editorUi.knxWireSettings = readSettings();
+			if (typeof workspace.editorUi.refreshWireModePreview == 'function')
+			{
+				workspace.editorUi.refreshWireModePreview();
+			}
+			workspace.editorUi.editor.setStatus('Wire style ready. Press W to draw.');
+		}));
+		return panel;
+	};
+
+	KnxWorkspace.prototype.showWireEditor = function()
+	{
+		var workspace = this;
+		var panel = document.createElement('div');
+		panel.className = 'knxDrawingDialog';
+		var title = document.createElement('h3');
+		title.innerText = 'Wire style';
+		panel.appendChild(title);
+		panel.appendChild(this.createWireEditor(this.getSelectedManualWires()));
+		panel.appendChild(this.createButton('Close', '&#215;', function() { workspace.editorUi.hideDialog(); }));
+		this.editorUi.showDialog(panel, Math.min(360, window.innerWidth - 48), 350, true, true);
+	};
+
+	KnxWorkspace.prototype.renderDrawingProperties = function(format, focusState)
+	{
+		var cell = this.graph.getSelectionCell();
+		var cells = this.getSelectedManualWires();
+		var load = this.graph.getSelectionCount() == 1 &&
+			this.module.getAttribute(cell, 'knxType') == 'load';
+		if (!load && (cells.length == 0 || cells.length != this.graph.getSelectionCount())) return false;
+		format.clear();
+		var panel = document.createElement('div');
+		panel.className = 'knxPropertyPanel';
+		var title = document.createElement('h3');
+		title.innerText = load ? KnxObjectSchema.getLoadType(this.module.getAttribute(cell, 'loadType')).label : 'Wire properties';
+		panel.appendChild(title);
+		if (load)
+		{
+			var module = this.module;
+			['name', 'room'].forEach(function(name)
+			{
+				var label = document.createElement('label');
+				label.className = 'knxPropertyField';
+				var text = document.createElement('span');
+				text.innerText = name == 'name' ? 'Name' : 'Room';
+				var input = document.createElement('input');
+				input.value = module.getAttribute(cell, name);
+				input.setAttribute('data-knx-property', name);
+				mxEvent.addListener(input, 'change', function() { module.updateObjectAttribute(cell, name, input.value); });
+				label.appendChild(text);
+				label.appendChild(input);
+				panel.appendChild(label);
+			});
+			var hint = document.createElement('p');
+			hint.innerText = 'Load icon without a KNX address. Press W to connect a wire.';
+			panel.appendChild(hint);
+		}
+		else panel.appendChild(this.createWireEditor(cells));
+		format.container.appendChild(panel);
+		format.restoreFocus(focusState);
+		return true;
 	};
 
 	KnxWorkspace.prototype.createEquipmentQuickActions = function()
@@ -1014,12 +1201,16 @@
 		actions.appendChild(this.createFileMenuControl());
 		actions.appendChild(this.createEquipmentAddControl());
 		actions.appendChild(this.createEquipmentQuickActions());
+		actions.appendChild(this.createButton('Icons', '&#9728;', mxUtils.bind(this, this.showLoadLibrary),
+			'knxLoadLibraryAction', 'Place a light, curtain or socket icon'));
 		this.wiringModeButton = this.createButton('Wiring Mode', '&#8594;', mxUtils.bind(this, function()
 		{
 			this.module.startConnectBus();
 		}), 'knxWiringModeAction', 'Enter Wiring Mode and click anywhere to start (W)');
 		this.wiringModeButton.setAttribute('aria-pressed', 'false');
 		actions.appendChild(this.wiringModeButton);
+		actions.appendChild(this.createButton('Wire style', '&#9998;', mxUtils.bind(this, this.showWireEditor),
+			'knxWireStyleAction', 'Choose wire type, color and drawing width'));
 
 		actions.appendChild(this.createButton('Validate', '&#10003;', mxUtils.bind(this, function()
 		{

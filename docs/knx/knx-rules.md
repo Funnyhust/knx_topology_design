@@ -26,6 +26,14 @@
 
 ## Wiring
 
+- Load icons (Light, Downlight, Curtain and Socket) are separate `knxType=load`
+  objects without an Individual Address; they are listed outside derived Area/Line
+  groups and excluded from equipment address validation and equipment count.
+- Manual wires may carry `knxWireType` (`knx`, `power`, `control`, `custom`).
+  KNX wires always use green; other types allow a custom color. Drawing width
+  is measured in pixels, not conductor cross-section. Type/color/width changes
+  do not modify terminal constraints, waypoints or equipment hierarchy.
+
 - Wiring Mode and `W` are independent of equipment hover and selection. A wire
   may start or end at a fixed free-Canvas point; equipment perimeter snapping is
   available when the pointer is over equipment.

@@ -64,6 +64,15 @@
 
 ## Equipment placement and wiring
 
+- Icons opens the load library; choosing an icon starts manual placement with
+  click/Enter to commit and Escape/right-click to cancel. Load Name and Room are
+  editable in Properties, and the Project Tree lists loads separately.
+- Wire style edits defaults for new wires explicitly through Use for new wires.
+  Selecting manual wires exposes the same controls in Properties, with an
+  explicit Apply to selected wires action recorded as one Undo command.
+- Wire types are KNX bus (green), Power (red by default), Control (blue by default)
+  and Custom. KNX color is locked green. Drawing width accepts 0.5–12 px.
+
 - Add Device enters a preview for the selected equipment type and creates no real
   cell until commit.
 - Click or Enter commits a free Canvas position; Escape or right-click cancels.
@@ -73,7 +82,7 @@
   add orthogonal anchors and equipment snapping is optional.
 - While Wiring Mode is armed, its toolbar action uses the selected blue state
   and `aria-pressed=true`; leaving the mode restores the default action state.
-- Preview and committed wires use the same green KNX style, fixed terminal
+- Preview and committed wires use the same selected style (green for KNX), fixed terminal
   points and explicit waypoints. Clicking the latest waypoint again without
   moving completes the active wire at that waypoint. Right-click completes at
   the live cursor and keeps the tool armed. `W`, the Wiring Mode toolbar action

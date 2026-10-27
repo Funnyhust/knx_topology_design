@@ -1,0 +1,49 @@
+name: KNX production web build
+on:
+  workflow_dispatch:
+  push:
+    branches: ['build/icons-wires-*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Check KNX contracts
+        run: |
+          node src/main/webapp/js/knx/KnxLayoutFoundation.test.js
+          node src/main/webapp/js/knx/KnxAreaLayout.test.js
+          node src/main/webapp/js/knx/KnxTopologyStructure.test.js
+      - name: Restore matching draw.io build tools
+        working-directory: etc/build
+        run: |
+          curl --fail --location --retry 3 -o compiler.jar https://raw.githubusercontent.com/jgraph/drawio/v30.3.11/etc/build/compiler.jar
+          javac Xml2Js.java
+          command -v ant || (sudo apt-get update && sudo apt-get install -y ant)
+      - name: Build production bundles using Ant
+        working-directory: etc/build
+        run: ant app
+      - name: Generate cache revisions
+        run: python3 etc/update-knx-cache.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: knx-production-web
+          path: |
+            src/main/webapp/js/app.min.js
+            src/main/webapp/js/extensions.min.js
+            src/main/webapp/js/orgchart.min.js
+            src/main/webapp/js/shapes-14-6-5.min.js
+            src/main/webapp/js/stencils.min.js
+            src/main/webapp/js/viewer.min.js
+            src/main/webapp/js/viewer-static.min.js
+            src/main/webapp/service-worker.js
+          if-no-files-found: error

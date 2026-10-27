@@ -25,7 +25,13 @@
 		var connectionHandler = graph.connectionHandler;
 		var getWireWidth = function()
 		{
-			return window.KnxConstants != null ? KnxConstants.BUS_WIDTH : 4;
+			return getWireSettings().width;
+		};
+		var getWireSettings = function()
+		{
+			return window.KnxObjectSchema != null ?
+				KnxObjectSchema.normalizeWireSettings(ui.knxWireSettings) :
+				{type: 'knx', color: '#00b96b', width: 4};
 		};
 		var clonePoint = function(point)
 		{
@@ -87,12 +93,14 @@
 		{
 			var module = graph.knxTopologyModule;
 
-			while (cell != null && module != null && !module.isDevice(cell))
+			while (cell != null && module != null && !module.isEquipment(cell) &&
+				module.getAttribute(cell, 'knxType') != 'load')
 			{
 				cell = graph.model.getParent(cell);
 			}
 
-			return module != null && module.isDevice(cell) ? cell : null;
+			return module != null && cell != null && (module.isEquipment(cell) ||
+				module.getAttribute(cell, 'knxType') == 'load') ? cell : null;
 		};
 		var getEquipmentAtPoint = function(viewPoint, cell)
 		{
@@ -102,7 +110,7 @@
 			if (cell == null && module != null &&
 				typeof module.getEquipmentCells == 'function')
 			{
-				var equipment = module.getEquipmentCells();
+				var equipment = module.getEquipmentCells().concat(module.getCells('load'));
 
 				for (var i = equipment.length - 1; i >= 0; i--)
 				{
@@ -229,7 +237,7 @@
 			if (ui.wireModePreviewShape == null)
 			{
 				ui.wireModePreviewShape = new mxPolyline(viewPoints,
-					'#00b96b', getWireWidth());
+					getWireSettings().color, getWireWidth());
 				ui.wireModePreviewShape.dialect = graph.dialect;
 				ui.wireModePreviewShape.pointerEvents = false;
 				ui.wireModePreviewShape.init(graph.view.getOverlayPane());
@@ -239,7 +247,14 @@
 				ui.wireModePreviewShape.points = viewPoints;
 			}
 
+			ui.wireModePreviewShape.stroke = getWireSettings().color;
+			ui.wireModePreviewShape.strokewidth = getWireWidth();
+			ui.wireModePreviewShape.scale = graph.view.scale;
 			ui.wireModePreviewShape.redraw();
+		};
+		this.refreshWireModePreview = function()
+		{
+			redrawWirePreview(ui.wireModeCursor);
 		};
 		var createWireStyle = function()
 		{
@@ -255,10 +270,11 @@
 			style = mxUtils.setStyle(style, 'startFill', '0');
 			style = mxUtils.setStyle(style, 'endFill', '0');
 			style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR,
-				'#00b96b');
+				getWireSettings().color);
 			style = mxUtils.setStyle(style, mxConstants.STYLE_STROKEWIDTH,
 				getWireWidth());
 			style = mxUtils.setStyle(style, 'wireMode', '1');
+			style = mxUtils.setStyle(style, 'knxWireType', getWireSettings().type);
 			return mxUtils.setStyle(style, 'knxConnectionKind', 'manual-wiring');
 		};
 		var resetCurrentWire = function()
@@ -421,6 +437,11 @@
 			if (ui.wireModeActive)
 			{
 				return true;
+			}
+
+			if (graph.knxTopologyModule != null)
+			{
+				graph.knxTopologyModule.cancelDevicePlacement();
 			}
 
 			graph.knxWireModeInputGuard = true;

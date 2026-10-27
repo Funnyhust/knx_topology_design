@@ -126,7 +126,8 @@
 				// mxCellAttributeChange mutates the XML value directly. mxGraph does
 				// not automatically invalidate its cached HTML label, so Properties
 				// appeared to save while the Device card stayed unchanged.
-				if (changedCell != null && module.isTopologyCell(changedCell))
+				if (changedCell != null && (module.isTopologyCell(changedCell) ||
+					module.getAttribute(changedCell, 'knxType') == 'load'))
 				{
 					module.graph.view.invalidate(changedCell, false, false);
 					labelsChanged = true;
@@ -158,7 +159,8 @@
 		{
 			var cell = module.graph.getSelectionCell();
 
-			if (module.isTopologyCell(cell) && !module.editorUi.isFormatPanelVisible())
+			if ((module.isTopologyCell(cell) || module.getAttribute(cell, 'knxType') == 'load' ||
+				(cell != null && cell.edge)) && !module.editorUi.isFormatPanelVisible())
 			{
 				module.editorUi.toggleFormatPanel(true);
 			}
@@ -1943,6 +1945,54 @@
 		return this.devicePlacement;
 	};
 
+	KnxTopologyModule.prototype.startLoadPlacement = function(loadType)
+	{
+		var type = KnxObjectSchema.getLoadType(loadType);
+		if (typeof this.editorUi.cancelWireMode == 'function') this.editorUi.cancelWireMode();
+		this.cancelDevicePlacement();
+		var preview = document.createElement('div');
+		preview.className = 'knxDevicePlacementPreview';
+		var image = document.createElement('img');
+		image.src = KnxObjectSchema.getLoadImage(type.value);
+		image.style.cssText = 'width:100%;height:70%;object-fit:contain';
+		preview.appendChild(image);
+		var label = document.createElement('span');
+		label.innerText = type.label;
+		preview.appendChild(label);
+		this.graph.container.appendChild(preview);
+		this.devicePlacement = {loadType: type.value, preview: preview,
+			point: null, geometry: null, valid: false};
+		this.graph.container.style.cursor = 'crosshair';
+		this.editorUi.editor.setStatus('Place ' + type.label + ': click the canvas; Esc cancels.');
+	};
+
+	KnxTopologyModule.prototype.commitLoadPlacement = function(geometry, loadType)
+	{
+		var type = KnxObjectSchema.getLoadType(loadType);
+		var graph = this.graph;
+		var model = graph.getModel();
+		var cell;
+		model.beginUpdate();
+		try
+		{
+			var value = this.createValue({knxType: 'load', loadType: type.value,
+				name: type.label, label: type.label, room: '', layoutMode: 'manual'});
+			cell = graph.insertVertex(graph.getDefaultParent(), null, value,
+				geometry.x, geometry.y, geometry.width, geometry.height,
+				'shape=image;imageAspect=1;aspect=fixed;verticalLabelPosition=bottom;' +
+				'verticalAlign=top;align=center;html=0;whiteSpace=wrap;fontSize=12;' +
+				'fontColor=#334155;connectable=1;image=' + KnxObjectSchema.getLoadImage(type.value) + ';');
+		}
+		finally
+		{
+			model.endUpdate();
+		}
+		this.cancelDevicePlacement();
+		graph.setSelectionCell(cell);
+		this.editorUi.editor.setStatus(type.label + ' placed. Press W to connect a wire.');
+		return cell;
+	};
+
 	KnxTopologyModule.prototype.cancelDevicePlacement = function()
 	{
 		if (this.devicePlacement != null && this.devicePlacement.preview != null &&
@@ -1962,8 +2012,11 @@
 
 	KnxTopologyModule.prototype.getDevicePlacementGeometry = function(point, evt)
 	{
-		var x = point.x - KnxTopologyModule.DEVICE_WIDTH / 2;
-		var y = point.y - KnxTopologyModule.DEVICE_HEIGHT / 2;
+		var load = this.devicePlacement != null && this.devicePlacement.loadType != null;
+		var width = load ? 80 : KnxTopologyModule.DEVICE_WIDTH;
+		var height = load ? 80 : KnxTopologyModule.DEVICE_HEIGHT;
+		var x = point.x - width / 2;
+		var y = point.y - height / 2;
 
 		if (evt == null || !mxEvent.isShiftDown(evt))
 		{
@@ -1971,8 +2024,7 @@
 			y = this.graph.snap(y);
 		}
 
-		return new mxGeometry(x, y, KnxTopologyModule.DEVICE_WIDTH,
-			KnxTopologyModule.DEVICE_HEIGHT);
+		return new mxGeometry(x, y, width, height);
 	};
 
 	KnxTopologyModule.prototype.isDevicePlacementValid = function(geometry)
@@ -2032,6 +2084,10 @@
 
 		var placement = this.devicePlacement;
 		var geometry = placement.geometry || this.getDevicePlacementGeometry(point, null);
+		if (placement.loadType != null)
+		{
+			return this.commitLoadPlacement(geometry, placement.loadType);
+		}
 		var graph = this.graph;
 		var index = this.getEquipmentCells().length + 1;
 		var equipmentType = KnxObjectSchema.getEquipmentType(placement.deviceType);
@@ -2680,6 +2736,23 @@
 		}
 
 		content.appendChild(panel);
+
+		var loads = this.getCells('load');
+		if (loads.length > 0)
+		{
+			var loadsTitle = document.createElement('div');
+			loadsTitle.className = 'knxTreeHint';
+			loadsTitle.innerText = 'Loads / Icons (no KNX address)';
+			panel.appendChild(loadsTitle);
+			for (var loadIndex = 0; loadIndex < loads.length; loadIndex++)
+			{
+				var loadRow = document.createElement('div');
+				loadRow.className = 'knxTreeRow';
+				loadRow.innerText = this.getAttribute(loads[loadIndex], 'name', 'Load');
+				this.configureTreeRow(loadRow, loads[loadIndex], 1, function() { return []; });
+				panel.appendChild(loadRow);
+			}
+		}
 	};
 
 	// Retained for loading and diagnosing diagrams produced by the earlier
@@ -3025,6 +3098,12 @@
 		var module = KnxTopologyModule.get(this.editorUi);
 		var graph = this.editorUi.editor.graph;
 		var cell = graph.getSelectionCell();
+		var workspace = this.editorUi.knxWorkspace;
+		if (workspace != null && this.container.offsetWidth != 0 &&
+			workspace.renderDrawingProperties(this, this.captureFocus()))
+		{
+			return;
+		}
 
 		if (graph.getSelectionCount() == 1 && module.isTopologyCell(cell) &&
 			this.container.offsetWidth != 0)
@@ -3047,6 +3126,10 @@
 	Graph.prototype.convertValueToString = function(cell)
 	{
 		var module = this.knxTopologyModule;
+		if (module != null && module.getAttribute(cell, 'knxType') == 'load')
+		{
+			return module.getAttribute(cell, 'name', 'Load');
+		}
 
 		if (module != null && (module.isDevice(cell) || module.isCoupler(cell)))
 		{

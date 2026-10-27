@@ -63,7 +63,61 @@
 		]
 	};
 
+	var loadTypes = [
+		{value: 'light', label: 'Light', drawing: '<circle cx="40" cy="31" r="21" fill="#fff4bd"/><path d="M28 49v11h24V49M29 65h22M34 71h12M32 29l8 10 8-10M40 39v20"/>'},
+		{value: 'downlight', label: 'Downlight', drawing: '<ellipse cx="40" cy="25" rx="28" ry="12" fill="#e2e8f0"/><ellipse cx="40" cy="25" rx="17" ry="6" fill="#fff4bd"/><path d="M27 43l-8 21M40 45v23M53 43l8 21"/>'},
+		{value: 'curtain', label: 'Curtain', drawing: '<path d="M9 13h62M14 17v51l26-9 26 9V17" fill="#e0e7ff"/><path d="M40 17v42M22 19v43M30 19v40M50 19v40M58 19v43"/>'},
+		{value: 'socket', label: 'Socket', drawing: '<rect x="11" y="11" width="58" height="58" rx="10" fill="#f1f5f9"/><circle cx="40" cy="40" r="20"/><path d="M31 35v8M49 35v8M36 55h8"/>'}
+	];
+	var wireTypes = [
+		{value: 'knx', label: 'KNX bus', color: '#00b96b'},
+		{value: 'power', label: 'Power', color: '#dc2626'},
+		{value: 'control', label: 'Control', color: '#2563eb'},
+		{value: 'custom', label: 'Custom', color: '#475569'}
+	];
+
 	var schema = {
+		getLoadTypes: function()
+		{
+			return loadTypes.slice();
+		},
+
+		getLoadType: function(value)
+		{
+			for (var i = 0; i < loadTypes.length; i++)
+			{
+				if (loadTypes[i].value == value) return loadTypes[i];
+			}
+			return loadTypes[0];
+		},
+
+		getLoadImage: function(value)
+		{
+			var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">' +
+				'<g fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+				this.getLoadType(value).drawing + '</g></svg>';
+			return 'data:image/svg+xml,' + encodeURIComponent(svg);
+		},
+
+		getWireTypes: function()
+		{
+			return wireTypes.slice();
+		},
+
+		normalizeWireSettings: function(settings)
+		{
+			settings = settings || {};
+			var type = wireTypes[0];
+			for (var i = 0; i < wireTypes.length; i++)
+			{
+				if (wireTypes[i].value == settings.type) type = wireTypes[i];
+			}
+			var width = parseFloat(settings.width);
+			return {type: type.value,
+				color: type.value == 'knx' || !/^#[0-9a-f]{6}$/i.test(settings.color || '') ?
+					type.color : settings.color,
+				width: isFinite(width) ? Math.max(0.5, Math.min(12, width)) : 4};
+		},
 		getEquipmentTypes: function()
 		{
 			return equipmentTypes.slice();
